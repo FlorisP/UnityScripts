@@ -1,18 +1,15 @@
 namespace Scripts
 {
-    using System;
     using UnityEngine;
 
     class Objects : MonoBehaviour
     {
-        /// <summary> Removes all children from GameObject </summary> 
-        public static GameObject CleanObject(GameObject obj, Transform parent = null)
+        /// <summary> Removes all children from Transform </summary> 
+        public static void CleanObject(Transform tf, Transform parent = null)
         {
-            string name = obj.name;
-            DestroyImmediate(obj);
-            GameObject CleanObject = new GameObject(name);
-            if (parent) CleanObject.transform.SetParent(parent);
-            return CleanObject;
+            int totalChildren = tf.childCount;
+            for (int i = totalChildren - 1; i >= 0; i--)
+                DestroyImmediate(tf.GetChild(i).gameObject);
         }
 
         /// <summary> Removes all children from GameObject </summary> 

@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Scripts
 {
     //https://www.youtube.com/watch?v=KPoeNZZ6H4s t3ssel8r
-    class SecondOrderDynamics
+    public class SecondOrderDynamics
     {
         float y, yd;
         float k1, k2, k3; // dynamics constants
@@ -15,15 +15,19 @@ namespace Scripts
         // r (initial response) = (0 takes time, 1 immedial reaction, > 1 overshoot, < 0 anticipate) 2 typical
         public SecondOrderDynamics(float f, float z, float r, float x0)
         {
-            // compute constants
-            k1 = z / (Mathf.PI * f);
-            k2 = 1 / ((2 * Mathf.PI * f) * (2 * Mathf.PI * f));
-            k3 = r * z / (2 * Mathf.PI * f);
+            UpdateConstants(f, z, r);
 
             // initialize variables
             previous_target = x0;
             y = x0;
             yd = 0;
+        }
+
+        public void UpdateConstants(float f, float z, float r)
+        {
+            k1 = z / (Mathf.PI * f);
+            k2 = 1 / ((2 * Mathf.PI * f) * (2 * Mathf.PI * f));
+            k3 = r * z / (2 * Mathf.PI * f);
         }
 
         public float Update(float dt, float target, float? xd = null)
@@ -39,7 +43,7 @@ namespace Scripts
         }
     }
 
-    class SecondOrderDynamics3D
+    public class SecondOrderDynamics3D
     {
         Vector3 xp;
         Vector3 y, yd;

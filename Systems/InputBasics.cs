@@ -21,7 +21,8 @@ public class InputBasics : MonoBehaviour
     [ReadOnly] public bool isPressing;
     [ReadOnly] public bool justPressed;
     [ReadOnly] public bool justReleased;
-    [ReadOnly] public float pressTime, pressTimer;
+    [ReadOnly] public float pressTimer;
+    float pressTime;
 
     [ReadOnly] public Vector2 screenPosition;
     [ReadOnly] public Vector2 screenStartPosition;

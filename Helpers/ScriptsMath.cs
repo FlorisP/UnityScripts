@@ -46,11 +46,11 @@ namespace Scripts
             return new Vector3(vec1.x * vec2.x, vec1.y * vec2.y, vec1.z * vec2.z);
         }
 
-        public static Vector3 XChangeVector3(Vector3 original, float newValue)
+        public static Vector3 Vector3xChange(Vector3 original, float newValue)
             {return new Vector3(newValue, original.y, original.z);}
-        public static Vector3 YChangeVector3(Vector3 original, float newValue)
+        public static Vector3 Vector3yChange(Vector3 original, float newValue)
             {return new Vector3(original.x, newValue, original.z);}
-        public static Vector3 ZChangeVector3(Vector3 original, float newValue)
+        public static Vector3 Vector3zChange(Vector3 original, float newValue)
             {return new Vector3(original.x, original.y, newValue);}
 
     }
