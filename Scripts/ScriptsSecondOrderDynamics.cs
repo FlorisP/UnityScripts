@@ -25,6 +25,8 @@ namespace Scripts
 
         public void UpdateConstants(float f, float z, float r)
         {
+            f = Mathf.Max(f, 0.01f);
+
             k1 = z / (Mathf.PI * f);
             k2 = 1 / ((2 * Mathf.PI * f) * (2 * Mathf.PI * f));
             k3 = r * z / (2 * Mathf.PI * f);
