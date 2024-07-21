@@ -6,54 +6,50 @@ using Scripts;
 
 public class AudioSystem : MonoBehaviour
 {
-    public static AudioSystem A;
-
-    AudioSource ambientAudioSource;
-    [OnValueChanged("PlayAmbient")] public AudioClip ambient;
-
-    void Awake()
+    static AudioSystem _instance;
+    public static AudioSystem A
     {
-        if (A == null)
-        {
-            A = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
+        get { 
+            if (_instance == null) {
+                _instance = FindObjectOfType<AudioSystem>();
+                DontDestroyOnLoad(_instance.gameObject);
+            }
+            return _instance;            
         }
     }
 
+    void OnEnable()
+    {
+        if (_instance == null)
+            _instance = this;
+        else if (_instance != this)
+            Destroy(gameObject);
+    }
+
+    public AudioSource ambientSource;
+    [OnValueChanged("PlayAmbient")] public AudioClip ambientClip;    
+
     public void PlaySound(AudioClip clip, float volume = 1.0f)
     {
-        GameObject soundGameObject = new GameObject("Sound_" + clip.name);
+        GameObject soundGameObject = new GameObject("Sound: " + clip.name);
         AudioSource audioSource = soundGameObject.AddComponent<AudioSource>();
         audioSource.clip = clip;
         audioSource.volume = volume;
         audioSource.Play();
         Destroy(soundGameObject, clip.length);
-                print("sound");
-
     }
 
     public void PlayAmbient(AudioClip newAmbientClip = null)
     {
         if (newAmbientClip != null)
-            ambient = newAmbientClip;
+            ambientClip = newAmbientClip;
 
-        if (ambient == null)
+        if (ambientClip == null)
             return;
 
-        if (ambientAudioSource==null)
-        {
-            ambientAudioSource = gameObject.AddComponent<AudioSource>();
-            ambientAudioSource.loop = true;
-        }
-
-        ambientAudioSource.clip = ambient;
-        ambientAudioSource.volume = 1.0f;
-        ambientAudioSource.Play();
-        print("play");
+        ambientSource.clip = ambientClip;
+        ambientSource.loop = true;
+        ambientSource.Play();
     }
 
 }

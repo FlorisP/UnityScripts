@@ -22,6 +22,7 @@ public class InputBasics : MonoBehaviour
     [ReadOnly] public bool justPressed;
     [ReadOnly] public bool justReleased;
     [ReadOnly] public float pressTimer;
+    [ReadOnly] public float lastTimer;
     float pressTime;
 
     [ReadOnly] public Vector2 screenPosition;
@@ -183,7 +184,8 @@ public class InputBasics : MonoBehaviour
         // Press
         isPressing = false;
         justReleased = true;
-        pressTimer = Time.time - pressTime;
+        pressTimer = 0;
+        lastTimer = Time.time - pressTime;
 
         // Tap
         if (pressTimer < tapTimeout)

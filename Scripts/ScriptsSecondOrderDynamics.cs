@@ -17,7 +17,6 @@ namespace Scripts
         {
             UpdateConstants(f, z, r);
 
-            // initialize variables
             previous_target = x0;
             y = x0;
             yd = 0;
@@ -53,14 +52,20 @@ namespace Scripts
 
         public SecondOrderDynamics3D(float f, float z, float r, Vector3 x0)
         {
-            // compute constants
-            k1 = z / (Mathf.PI * f);
-            k2 = 1 / ((2 * Mathf.PI * f) * (2 * Mathf.PI * f));
-            k3 = r * z / (2 * Mathf.PI * f);
-            // initialize variables
+            UpdateConstants(f, z, r);
+
             xp = x0;
             y = x0;
             yd = Vector3.zero;
+        }
+
+        public void UpdateConstants(float f, float z, float r)
+        {
+            f = Mathf.Max(f, 0.01f);
+
+            k1 = z / (Mathf.PI * f);
+            k2 = 1 / ((2 * Mathf.PI * f) * (2 * Mathf.PI * f));
+            k3 = r * z / (2 * Mathf.PI * f);
         }
 
         public Vector3 Update(float T, Vector3 x, Vector3? xd = null)
@@ -75,7 +80,17 @@ namespace Scripts
             yd = yd + T * (x + k3 * xd.Value - y - k1 * yd) / k2_stable; // integrate velocity by acceleration
             return y;
         }
+
+        public void SetCurrentValue(Vector3 newY, Vector3 newYd)
+        {
+            y = newY;
+            yd = newYd;
+            xp = newY; // Optional: also set xp to newY if you want to reset the target position
+        }
+
     }
+
+    
 
 }
 

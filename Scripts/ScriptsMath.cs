@@ -42,18 +42,18 @@ namespace Scripts
     class MathVectors
     {
         public static Vector3 MultiplyVectors(Vector3 vec1, Vector3 vec2)
-        {
-            return new Vector3(vec1.x * vec2.x, vec1.y * vec2.y, vec1.z * vec2.z);
-        }
-
+            {return new Vector3(vec1.x * vec2.x, vec1.y * vec2.y, vec1.z * vec2.z);}
+        public static Vector3 Abs(Vector3 vector)
+            {return new Vector3(Mathf.Abs(vector.x), Mathf.Abs(vector.y), Mathf.Abs(vector.z));}
+ 
         public static Vector3 Vector3xChange(Vector3 original, float newValue)
             {return new Vector3(newValue, original.y, original.z);}
         public static Vector3 Vector3yChange(Vector3 original, float newValue)
             {return new Vector3(original.x, newValue, original.z);}
         public static Vector3 Vector3zChange(Vector3 original, float newValue)
             {return new Vector3(original.x, original.y, newValue);}
-
-    }
+    
+   }
 
     class MathAngles
     {
