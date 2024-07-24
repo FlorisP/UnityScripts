@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using Sirenix.OdinInspector;
 using UnityEngine;
-using Scripts;
+using Sirenix.OdinInspector;
 
 public class AudioSystem : MonoBehaviour
 {
@@ -29,12 +26,13 @@ public class AudioSystem : MonoBehaviour
     public AudioSource ambientSource;
     [OnValueChanged("PlayAmbient")] public AudioClip ambientClip;    
 
-    public void PlaySound(AudioClip clip, float volume = 1.0f)
+    public void PlaySound(AudioClip clip, float volume = 1.0f, float pitch = 1.0f)
     {
         GameObject soundGameObject = new GameObject("Sound: " + clip.name);
         AudioSource audioSource = soundGameObject.AddComponent<AudioSource>();
         audioSource.clip = clip;
-        audioSource.volume = volume;
+        audioSource.volume = volume; // 0-1
+        audioSource.pitch = pitch; // 0-3
         audioSource.Play();
         Destroy(soundGameObject, clip.length);
     }

@@ -4,6 +4,7 @@ using UnityEngine;
 namespace Scripts
 {
     //https://www.youtube.com/watch?v=KPoeNZZ6H4s t3ssel8r
+    // Y = location, X = target
     public class SecondOrderDynamics
     {
         float y, yd;
@@ -81,10 +82,10 @@ namespace Scripts
             return y;
         }
 
-        public void SetCurrentValue(Vector3 newY, Vector3 newYd)
+        public void SetCurrentValue(Vector3 newY, Vector3 newYd = default)
         {
             y = newY;
-            yd = newYd;
+            yd = newYd == default ? Vector3.zero : newYd;
             xp = newY; // Optional: also set xp to newY if you want to reset the target position
         }
 
