@@ -23,7 +23,7 @@ namespace Scripts
             yd = 0;
         }
 
-        public void UpdateConstants(float f, float z, float r)
+        void UpdateConstants(float f, float z, float r)
         {
             f = Mathf.Max(f, 0.01f);
 
@@ -43,6 +43,10 @@ namespace Scripts
             yd = yd + dt * (target - y + k3*(float)xd - k1*yd) / k2_stable; // integrate velocity by acceleration
             return y;
         }
+
+        public void UpdateFZR(Vector3 fzr)
+            { UpdateConstants(fzr.x, fzr.y, fzr.z); }
+
     }
 
     public class SecondOrderDynamics3D
@@ -60,7 +64,7 @@ namespace Scripts
             yd = Vector3.zero;
         }
 
-        public void UpdateConstants(float f, float z, float r)
+        void UpdateConstants(float f, float z, float r)
         {
             f = Mathf.Max(f, 0.01f);
 
@@ -88,6 +92,9 @@ namespace Scripts
             yd = newYd == default ? Vector3.zero : newYd;
             xp = newY; // Optional: also set xp to newY if you want to reset the target position
         }
+
+        public void UpdateFZR(Vector3 fzr)
+            { UpdateConstants(fzr.x, fzr.y, fzr.z); }
 
     }
 

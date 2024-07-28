@@ -15,17 +15,20 @@ public class AudioSystem : MonoBehaviour
         }
     }
 
+    public AudioSource ambientSource;
+    [OnValueChanged("PlayAmbient")] public AudioClip ambientClip;
+
     void OnEnable()
     {
         if (_instance == null)
+        {
             _instance = this;
-        else if (_instance != this)
+            PlayAmbient();
+        }
+        else if (_instance != this)        
             Destroy(gameObject);
     }
-
-    public AudioSource ambientSource;
-    [OnValueChanged("PlayAmbient")] public AudioClip ambientClip;    
-
+    
     public void PlaySound(AudioClip clip, float volume = 1.0f, float pitch = 1.0f)
     {
         GameObject soundGameObject = new GameObject("Sound: " + clip.name);
@@ -41,7 +44,6 @@ public class AudioSystem : MonoBehaviour
     {
         if (newAmbientClip != null)
             ambientClip = newAmbientClip;
-
         if (ambientClip == null)
             return;
 
