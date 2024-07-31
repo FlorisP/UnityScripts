@@ -200,8 +200,7 @@ public class InputBasics : MonoBehaviour
         }
 
         // Swipe
-        swipeVector = screenPosition - touchData[0].Position;
-        
+        swipeVector = screenPosition - touchData[0].Position;        
         swipeLength = swipeVector.magnitude / screenDiagonal;
         swipeAngle = Mathf.Atan2(swipeVector.x, swipeVector.y) * Mathf.Rad2Deg;
 
