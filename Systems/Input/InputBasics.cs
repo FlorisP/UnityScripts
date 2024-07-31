@@ -35,7 +35,6 @@ public class InputBasics : MonoBehaviour
 
     [Title("Tap")]
     public float tapTimeout = 0.2f;
-    public float consecutiveTapTimeout = 0.5f;
 
     [ReadOnly] public bool isTapping;
     [ReadOnly] public int consecutiveTaps;
@@ -43,7 +42,7 @@ public class InputBasics : MonoBehaviour
 
     [Title("Swipe")]
     public float swipeDuration = 0.3f;
-    public float swipeMinLength = 0.1f;
+    public float minSwipeLength = 0.1f;
 
     [ReadOnly] public bool hasSwiped;
     [ReadOnly] public Vector2 swipeVector;
@@ -134,7 +133,7 @@ public class InputBasics : MonoBehaviour
 
         // Tap
         timeBetweenTaps = pressTime - oldPressTime;
-        if (timeBetweenTaps > consecutiveTapTimeout)
+        if (timeBetweenTaps > tapTimeout)
         {
             isTapping = false;
             consecutiveTaps = 0;
@@ -143,7 +142,7 @@ public class InputBasics : MonoBehaviour
         // Swipe
         screenStartPosition = screenPosition;
         hasSwiped = false;
-        touchData = new List<TouchData>{new TouchData(screenPosition, pressTimer)};
+        touchData = new List<TouchData>{new(screenPosition, pressTimer)};
 
         PressBeginEvent?.Invoke();
     }
@@ -204,7 +203,7 @@ public class InputBasics : MonoBehaviour
         swipeLength = swipeVector.magnitude / screenDiagonal;
         swipeAngle = Mathf.Atan2(swipeVector.x, swipeVector.y) * Mathf.Rad2Deg;
 
-        if (swipeLength > swipeMinLength)
+        if (swipeLength > minSwipeLength)
             hasSwiped = true;
 
         PressEndEvent?.Invoke();                
