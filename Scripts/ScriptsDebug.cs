@@ -10,10 +10,6 @@ namespace Scripts
             Debug.Log($"{comment} {variable}");
         }
 
-        internal static void DrawLine(UnityEngine.Vector2 center, UnityEngine.Vector2 point, UnityEngine.Color red)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
 
