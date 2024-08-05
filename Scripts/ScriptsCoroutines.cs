@@ -7,7 +7,7 @@ namespace Scripts
 {
     public static class Coroutines
     {
-        private static Dictionary<Action, Coroutine> runningCoroutines = new Dictionary<Action, Coroutine>();
+        private static readonly Dictionary<Action, Coroutine> runningCoroutines = new Dictionary<Action, Coroutine>();
         private static MonoBehaviour coroutineRunner;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -17,7 +17,7 @@ namespace Scripts
             {
                 GameObject gameObject = new GameObject("CoroutineRunner");
                 coroutineRunner = gameObject.AddComponent<CoroutineRunnerComponent>();
-                GameObject.DontDestroyOnLoad(gameObject);
+                UnityEngine.Object.DontDestroyOnLoad(gameObject);
             }
         }
 

@@ -114,7 +114,6 @@ public class InputBasics : MonoBehaviour
         }
     }
 
-
     void PressBegin()
     {
         touchBeganOnUI = EventSystem.current.IsPointerOverGameObject() || (Input.touchCount > 0 && EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId));
