@@ -4,10 +4,17 @@ using Sirenix.OdinInspector;
 
 public class UISystem : MonoBehaviour
 {
-    public void Activate(GameObject go, bool setActive)
+    // TODO Fade / transform with dynamics
+
+
+    public void Activate()
     {
-        go.SetActive(setActive);
+        // Prepare, remove from screen 
+
+        gameObject.SetActive(true);
+
+
+        // Animate, fade in, transform in
     }
 
-    // TODO Fade / transform with dynamics
 }
