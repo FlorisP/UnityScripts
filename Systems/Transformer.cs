@@ -1,50 +1,60 @@
 using UnityEngine;
+using System;
 using Sirenix.OdinInspector;
-
-// TODO Make it work with AnimationCurves and Scripts.Functions
+using Scripts;
 
 public class Transformer : MonoBehaviour
 {    
-    public bool translate;
-    [SerializeField, ShowIf("translate")]
-    public Vector3 direction;
-    [SerializeField, ShowIf("translate")]
-    public float translationSpeed;
+    public bool Translate;
+        [ShowIf("Translate")] public Settings translation;
 
-    public bool rotate;
-    [SerializeField, ShowIf("rotate")]
-    public Vector3 rotationAxis;
-    [SerializeField, ShowIf("rotate")]
-    public float rotationSpeed;
+    public bool Rotate;
+        [ShowIf("Rotate")] public Settings rotation;
 
-    public bool scale;
-    [SerializeField, ShowIf("scale")]
-    public Vector3 minScale;
-    [SerializeField, ShowIf("scale")]
-    public Vector3 maxScale;
+    public bool Scale;
+        [ShowIf("Scale")] public Settings scaling;
+
+    [Serializable]
+    public class Settings
+    {
+        public Vector3 direction = Vector3.one;
+        public float amplitude = 1f;
+        public float speed = 0.2f;
+        public Functions.Enum function = Functions.Enum.Sine;
+    }
 
     void Update()
     {
-        if (translate)
-            Translate(transform);
-        if (rotate)
-            Rotate(transform);
-        if (scale)
-            Scale();
+        if (Translate)
+            ApplyTransformation(TranslateTransform, translation);
+        if (Rotate)
+            ApplyTransformation(RotateTransform, rotation);
+        if (Scale)
+            ApplyTransformation(ScaleTransform, scaling);
     }
 
-    public void Translate(Transform tf)
+    private void ApplyTransformation(Action<Vector3> transformAction, Settings settings)
     {
-        tf.localPosition += direction * translationSpeed * Time.deltaTime;
+        float T = Time.time * settings.speed;
+        float value = Functions.Invoke(settings.function, T);
+        float adjustedValue = value * settings.amplitude * settings.speed;
+        Vector3 transformation = settings.direction.normalized * adjustedValue;
+
+        transformAction(transformation);
     }
 
-    public void Rotate(Transform tf)
+    private void TranslateTransform(Vector3 translation)
     {
-        tf.Rotate(rotationAxis, rotationSpeed * Time.deltaTime, Space.World);
+        transform.Translate(translation, Space.World);
+    }
+    private void RotateTransform(Vector3 rotation)
+    {
+        transform.Rotate(rotation, Space.World);
     }
 
-    void Scale()
+    private void ScaleTransform(Vector3 scale)
     {
-        // Implement scaling logic here, e.g., oscillate between minScale and maxScale
+        transform.localScale = Vector3.one * scaling.amplitude + scale;
     }
+
 }

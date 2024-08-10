@@ -2,97 +2,170 @@ using UnityEngine;
 
 namespace Scripts
 {
-    class Functions
+    public class Functions
     {       
-        // Repeating:
-        public static float Sine(float t, float A=1, float f=1)
+        // Repeating:        
+        public static float One()
         {
-            return A * Mathf.Sin(2 * Mathf.PI * f * t);
+            return 1;
         }
-        public static float TriangleWave(float t, float A=1, float f=1)
+
+        public static float Sine(float t)
         {
-            return 2f * Mathf.Abs(2f * (t * f - Mathf.Floor(t * f + 0.5f))) * A - A;
+            return Mathf.Sin(2 * Mathf.PI * t);
         }
-        public static float CosineWave(float t, float A=1, float f=1)
+
+        public static float TriangleWave(float t)
         {
-            return A * Mathf.Cos(2 * Mathf.PI * f * t);
+            return 2f * Mathf.Abs(2f * (t - Mathf.Floor(t + 0.5f))) - 1f;
         }
-        public static float DoubleSine(float t, float A=1, float f=1)
+
+        public static float CosineWave(float t)
         {
-            return A * (Mathf.Sin(2 * Mathf.PI * f * t) + Mathf.Sin(2 * Mathf.PI * f * 2 * t) / 2);
+            return Mathf.Cos(2 * Mathf.PI * t);
         }
-        public static float AbsSine(float t, float A=1, float f=1)
+
+        public static float DoubleSine(float t)
         {
-            return A * Mathf.Abs(Mathf.Sin(2 * Mathf.PI * f * t));
+            return Mathf.Sin(2 * Mathf.PI * t) + Mathf.Sin(4 * Mathf.PI * t) / 2f;
         }
-        public static float Quadratic(float t, float A=1, float f=1)
+
+        public static float AbsSine(float t)
         {
-            t = t * f % 1f;
-            return A * 4 * t * (1 - t);
+            return Mathf.Abs(Mathf.Sin(2 * Mathf.PI * t));
         }
-        public static float Cubic(float t, float A=1, float f=1)
+
+        public static float Quadratic(float t)
         {
-            t = t * f % 1f;
-            return A * (4 * t * t * t - 6 * t * t + 3 * t);
+            t = t % 1f;
+            return 4f * t * (1f - t);
         }
-        public static float Circle(float t, float A=1, float f=1)
+
+        public static float Cubic(float t)
         {
-            t = t * f % 1f;
-            return A * Mathf.Sqrt(1 - Mathf.Pow((2 * t - 1), 2));
+            t %= 1f;
+            return 4f * t * t * t - 6f * t * t + 3f * t;
         }
-        public static float Ellipse(float t, float A=1, float f=1)
+
+        public static float Circle(float t)
         {
-            t = t * f % 1f;
-            float a = A, b = A / 2;
-            return b * Mathf.Sqrt(1 - Mathf.Pow((t - a) / a, 2));
+            t = t % 1f;
+            return Mathf.Sqrt(1f - Mathf.Pow(2f * t - 1f, 2f));
         }
-        //Discontinous
-        public static float Square(float t, float A=1, float f=1)
+
+        public static float Ellipse(float t)
         {
-            return A * (Mathf.Floor(2 * t * f) % 2 == 0 ? 1 : -1);
+            t = t % 1f;
+            return Mathf.Sqrt(1f - Mathf.Pow((t - 0.5f) / 0.5f, 2f));
         }
-        public static float Sawtooth(float t, float A=1, float f=1)
+
+        public static float Pulse(float t)
         {
-            return 2f * (t * f - Mathf.Floor(t * f + 0.5f)) * A;
+            return (Mathf.Floor(2 * t) % 2 == 0 ? 1f : -1f) * Mathf.Exp(-t);
         }
+
+        public static float Tangent(float t)
+        {
+            return Mathf.Tan(2 * Mathf.PI * t);
+        }
+
+
+        // Discontinuous
+        public static float Linear(float t)
+        {
+            return t;
+        }
+
+        public static float Square(float t)
+        {
+            return Mathf.Floor(2f * t) % 2 == 0 ? 1f : -1f;
+        }
+
+        public static float Sawtooth(float t)
+        {
+            return 2f * (t - Mathf.Floor(t + 0.5f));
+        }
+
 
         // Non-Repeating
-        public static float PerlinNoiseFunction(float t, float A=1, float f=1)
+        public static float PerlinNoiseFunction(float t)
         {
-            return A * Mathf.PerlinNoise(t * f, 0f);
-        }
-        public static float DampedOscillation(float t, float A=1, float f=1)
-        {
-            return A * Mathf.Exp(-t * f) * Mathf.Sin(2 * Mathf.PI * f * t);
-        }
-        public static float Pulse(float t, float A=1, float f=1)
-        {
-            return A * (Mathf.Floor(2 * t * f) % 2 == 0 ? 1 : -1) * Mathf.Exp(-t * f);
-        }
-        public static float Tangent(float t, float A=1, float f=1)
-        {
-            return A * Mathf.Tan(2 * Mathf.PI * f * t);
+            return Mathf.PerlinNoise(t, 0f);
         }
 
-        public static AnimationCurve InvertAnimationCurve(AnimationCurve curve, int resolution = 30)
+        public static float DampedOscillation(float t)
         {
-            AnimationCurve newCurve = new AnimationCurve();
-            float startTime = curve.keys[0].time;
-            float endTime = curve.keys[curve.length - 1].time;
+            return Mathf.Exp(-t) * Mathf.Sin(2 * Mathf.PI * t);
+        }
 
-            for (int i = 0; i <= resolution; i++)
+
+        public enum Enum
+        {
+            One,
+            Sine,
+            TriangleWave,
+            CosineWave,
+            DoubleSine,
+            AbsSine,
+            Quadratic,
+            Cubic,
+            Circle,
+            Ellipse,
+            Pulse,
+            Tangent,
+
+            Linear,
+            Square,
+            Sawtooth,
+
+            PerlinNoiseFunction,
+            DampedOscillation,
+        }
+
+        public static float Invoke(Enum function, float t)
+        {
+            switch (function)
             {
-                float t = Mathf.Lerp(startTime, endTime, i / (float)resolution);
-                float value = curve.Evaluate(t);
-                newCurve.AddKey(value, t);
+                case Enum.One:
+                    return One();
+                case Enum.Sine:
+                    return Sine(t);
+                case Enum.TriangleWave:
+                    return TriangleWave(t);
+                case Enum.CosineWave:
+                    return CosineWave(t);
+                case Enum.DoubleSine:
+                    return DoubleSine(t);
+                case Enum.AbsSine:
+                    return AbsSine(t);
+                case Enum.Quadratic:
+                    return Quadratic(t);
+                case Enum.Cubic:
+                    return Cubic(t);
+                case Enum.Circle:
+                    return Circle(t);
+                case Enum.Ellipse:
+                    return Ellipse(t);
+
+                case Enum.Linear:
+                    return Linear(t);
+                case Enum.Square:
+                    return Square(t);
+                case Enum.Sawtooth:
+                    return Sawtooth(t);
+
+                case Enum.PerlinNoiseFunction:
+                    return PerlinNoiseFunction(t);
+                case Enum.DampedOscillation:
+                    return DampedOscillation(t);
+                case Enum.Pulse:
+                    return Pulse(t);
+                case Enum.Tangent:
+                    return Tangent(t);
+                default:
+                    Debug.LogWarning($"Function {function} not recognized");
+                    return 0f;
             }
-
-            // Smooth tangents
-            for (int i = 0; i < newCurve.keys.Length; i++)
-                newCurve.SmoothTangents(i, 0);
-
-            return newCurve;
         }
     }
 }
-
