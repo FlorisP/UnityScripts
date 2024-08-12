@@ -75,6 +75,9 @@ namespace Scripts
 
         public Vector3 Update(float T, Vector3 x, Vector3? xd = null)
         {
+            if(T == 0)
+                return x;
+
             if (xd == null)
             {
                 xd = (x - xp) / T;

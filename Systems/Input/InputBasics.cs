@@ -178,24 +178,22 @@ public class InputBasics : MonoBehaviour
     {
         if (ignoreStartOnUI && touchBeganOnUI) 
             return;
-        
+
+        // Tap
+        if (pressTimer < tapTimeout){
+            isTapping = true;
+            consecutiveTaps++;
+        }
+        else{
+            isTapping = false;
+            consecutiveTaps = 0;
+        }
+                
         // Press
         isPressing = false;
         justReleased = true;
         pressTimer = 0;
         lastTimer = Time.time - pressTime;
-
-        // Tap
-        if (pressTimer < tapTimeout)
-        {
-            isTapping = true;
-            consecutiveTaps++;
-        }
-        else
-        {
-            isTapping = false;
-            consecutiveTaps = 0;
-        }
 
         // Swipe
         swipeVector = screenPosition - touchData[0].Position;        
