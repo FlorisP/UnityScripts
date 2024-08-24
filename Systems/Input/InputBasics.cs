@@ -8,7 +8,7 @@ using System.Collections.Generic;
 Event System required
 Using InputBasicsEditor script
 
-Set Project Settings => Script Execution Order (before other scripts)
+Project Settings => Script Execution Order (before other scripts)
 */
 
 public class InputBasics : MonoBehaviour
