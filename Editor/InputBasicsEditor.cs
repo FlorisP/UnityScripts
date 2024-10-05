@@ -35,9 +35,9 @@ public class InputBasicsEditor : OdinEditor
 
             // Draw Vectors
             if (input.hasSwiped)
-                DrawVector(rect, input.swipeVector/input.screenDiagonal, Color.red);
+                DrawVector(rect, input.swipeVector/input.ScreenDiagonal, Color.red);
             if (input.isPressing)
-                DrawVector(rect, input.dragVector/input.screenDiagonal, Color.blue);
+                DrawVector(rect, input.dragVector/input.ScreenDiagonal, Color.blue);
         }
     }
 

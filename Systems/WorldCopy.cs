@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CopyWorld : MonoBehaviour
+public class WorldCopy : MonoBehaviour
 {
     [Serializable]
     public class MainObject

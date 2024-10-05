@@ -25,17 +25,14 @@ public class InputBasics : MonoBehaviour
     [ReadOnly] public float lastTimer;
     float pressTime;
 
+    [ReadOnly] public bool touchBeganOnUI;
     [ReadOnly] public Vector2 screenPosition;
     [ReadOnly] public Vector2 screenStartPosition;
-    [ReadOnly] public bool touchBeganOnUI;
-
     [ReadOnly] public Vector2 dragVector;
-    [ReadOnly] public float dragLength;
     [ReadOnly] public float dragAngle;
 
     [Title("Tap")]
     public float tapTimeout = 0.2f;
-
     [ReadOnly] public bool isTapping;
     [ReadOnly] public int consecutiveTaps;
     [ReadOnly] public float timeBetweenTaps;
@@ -43,7 +40,6 @@ public class InputBasics : MonoBehaviour
     [Title("Swipe")]
     public float swipeDuration = 0.3f;
     public float minSwipeLength = 0.1f;
-
     [ReadOnly] public bool hasSwiped;
     [ReadOnly] public Vector2 swipeVector;
     [ReadOnly] public float swipeLength;
@@ -75,14 +71,10 @@ public class InputBasics : MonoBehaviour
 
     [Title("Debug")]
     public bool ignoreStartOnUI = true;
-
+    [ShowInInspector] public float ScreenDiagonal => Mathf.Sqrt(Screen.width * Screen.width + Screen.height * Screen.height);
+    [ShowInInspector] public float RelativeDragLength => dragVector.magnitude / ScreenDiagonal;
     // Drag and Swipe indicator circle shown in Editor script
-    [ReadOnly] public float screenDiagonal;
 
-    void Awake()
-    {
-        screenDiagonal = Mathf.Sqrt(Screen.width * Screen.width + Screen.height * Screen.height);
-    }
 
     void Update()
     {
@@ -155,7 +147,6 @@ public class InputBasics : MonoBehaviour
         justPressed = false;
         pressTimer = Time.time - pressTime;
         dragVector = screenPosition - screenStartPosition;
-        dragLength = dragVector.magnitude / screenDiagonal;
         dragAngle = Mathf.Atan2(dragVector.y, dragVector.x) * Mathf.Rad2Deg;
 
         // Swipe 
@@ -197,7 +188,6 @@ public class InputBasics : MonoBehaviour
 
         // Swipe
         swipeVector = screenPosition - touchData[0].Position;        
-        swipeLength = swipeVector.magnitude / screenDiagonal;
         swipeAngle = Mathf.Atan2(swipeVector.x, swipeVector.y) * Mathf.Rad2Deg;
 
         if (swipeLength > minSwipeLength)
