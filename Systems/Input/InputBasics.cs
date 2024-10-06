@@ -25,11 +25,12 @@ public class InputBasics : MonoBehaviour
     [ReadOnly] public float lastTimer;
     float pressTime;
 
+    [Title("Pull")]
     [ReadOnly] public bool touchBeganOnUI;
     [ReadOnly] public Vector2 screenPosition;
     [ReadOnly] public Vector2 screenStartPosition;
-    [ReadOnly] public Vector2 dragVector;
-    [ReadOnly] public float dragAngle;
+    [ReadOnly] public Vector2 pullVector;
+    [ReadOnly] public float pullAngle;
 
     [Title("Tap")]
     public float tapTimeout = 0.2f;
@@ -72,9 +73,9 @@ public class InputBasics : MonoBehaviour
     [Title("Debug")]
     public bool ignoreStartOnUI = true;
     [ShowInInspector] public float ScreenDiagonal => Mathf.Sqrt(Screen.width * Screen.width + Screen.height * Screen.height);
-    [ShowInInspector] public float RelativeDragLength => dragVector.magnitude / ScreenDiagonal;
-    // Drag and Swipe indicator circle shown in Editor script
-
+    [ShowInInspector] public float RelativePullLength => pullVector.magnitude / ScreenDiagonal;
+    
+    // UNITY EDITOR Editor script implements Pull and Swipe indicator circle here
 
     void Update()
     {
@@ -114,7 +115,7 @@ public class InputBasics : MonoBehaviour
 
         float oldPressTime = pressTime;
         float oldPressTimer = pressTimer;
-        dragVector = Vector2.zero;
+        pullVector = Vector2.zero;
 
         // Press
         isPressing = true;
@@ -146,8 +147,8 @@ public class InputBasics : MonoBehaviour
         // Press
         justPressed = false;
         pressTimer = Time.time - pressTime;
-        dragVector = screenPosition - screenStartPosition;
-        dragAngle = Mathf.Atan2(dragVector.y, dragVector.x) * Mathf.Rad2Deg;
+        pullVector = screenPosition - screenStartPosition;
+        pullAngle = Mathf.Atan2(pullVector.y, pullVector.x) * Mathf.Rad2Deg;
 
         // Swipe 
         touchData.Add(new TouchData(screenPosition, pressTimer));
