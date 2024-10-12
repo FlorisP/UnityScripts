@@ -11,18 +11,16 @@ using UnityEngine.EventSystems;
 
 public class InputEvents : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
-    [SerializeField] public UnityEvent OnDown;
-    [SerializeField] public UnityEvent OnUp;
+    public UnityEvent OnDown;
+    public UnityEvent OnUp;
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (OnDown != null)
-            OnDown.Invoke();
+        OnDown?.Invoke();
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (OnUp != null)
-            OnUp.Invoke();
+        OnUp?.Invoke();
     }
 }

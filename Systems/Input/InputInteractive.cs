@@ -14,14 +14,9 @@ public class InputInteractive : MonoBehaviour
 
     private void Awake()
     {
-        if (OnPressBeginGO == null)
-            OnPressBeginGO = new HitEvent();
-
-        if (OnPressHoldGO == null)
-            OnPressHoldGO = new HitEvent();
-
-        if (OnPressEndGO == null)
-            OnPressEndGO = new HitEvent();
+        OnPressBeginGO ??= new HitEvent();
+        OnPressHoldGO ??= new HitEvent();
+        OnPressEndGO ??= new HitEvent();
     }
 
     public void HitBegin(RaycastHit hit)
