@@ -2,7 +2,7 @@ using System.Collections;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-// TODO Spin, Particles
+// TODO Spin, Particles, respawn
 
 public class Collectable : MonoBehaviour
 {
@@ -16,6 +16,7 @@ public class Collectable : MonoBehaviour
     }
 
     bool InPlayMode() { return Application.isPlaying;}
+
     [Button, EnableIf("InPlayMode")] 
     public void Collect()
     {

@@ -46,7 +46,7 @@ public class InputBasics : MonoBehaviour
     [ReadOnly] public float swipeLength;
     [ReadOnly] public float swipeAngle;
 
-    List<TouchData> touchData = new List<TouchData>();    
+    List<TouchData> touchData = new();    
     class TouchData
     {
         public Vector2 Position;
@@ -87,6 +87,7 @@ public class InputBasics : MonoBehaviour
         {
             Touch touch = Input.GetTouch(0);
             screenPosition = touch.position;
+
             if (touch.phase == TouchPhase.Began)
                 PressBegin();
             else if (touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary)
@@ -94,24 +95,16 @@ public class InputBasics : MonoBehaviour
             else if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
                 PressEnd();
         }
-        // Mouse
-        else
-        {
-            screenPosition = Input.mousePosition;
-            if (Input.GetMouseButtonDown(0))
-                PressBegin();
-            else if (Input.GetMouseButton(0))
-                PressHold();
-            else if (Input.GetMouseButtonUp(0))
-                PressEnd();
-        }
     }
 
     void PressBegin()
     {
-        touchBeganOnUI = EventSystem.current.IsPointerOverGameObject() || (Input.touchCount > 0 && EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId));
+        touchBeganOnUI = EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId);
+       
         if (ignoreStartOnUI && touchBeganOnUI) 
             return;
+
+        print("2");
 
         float oldPressTime = pressTime;
         float oldPressTimer = pressTimer;
