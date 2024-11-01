@@ -65,7 +65,7 @@ public class InputBasics : MonoBehaviour
     {   
         get {
             if (instance == null)
-                instance = FindObjectOfType<InputBasics>();
+                instance = FindFirstObjectByType<InputBasics>();
             return instance;
         }
     }
@@ -103,8 +103,6 @@ public class InputBasics : MonoBehaviour
        
         if (ignoreStartOnUI && touchBeganOnUI) 
             return;
-
-        print("2");
 
         float oldPressTime = pressTime;
         float oldPressTimer = pressTimer;

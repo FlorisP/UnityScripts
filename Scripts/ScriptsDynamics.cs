@@ -34,13 +34,20 @@ namespace Scripts
 
         public float Update(float dt, float target, float? xd = null)
         {
-            if (xd == null){ // estimate velocity
+            if(dt <= 0)
+                return y;
+
+            // Estimate target change
+            if (xd == null){ 
                 xd = (target - previous_target) / dt;
                 previous_target = target;
             }
+
+            // Calculate position and new speed
             float k2_stable = Math.Max(Math.Max(k2, dt*dt/2 + dt*k1/2), dt*k1); // clamp k2 to guarantee stability without jitter
-            y = y + dt * yd;
-            yd = yd + dt * (target - y + k3*(float)xd - k1*yd) / k2_stable; // integrate velocity by acceleration
+            y += dt * yd;
+            yd += dt * (target - y + k3*(float)xd - k1*yd) / k2_stable; // integrate velocity by acceleration
+            
             return y;
         }
 
@@ -51,10 +58,10 @@ namespace Scripts
 
     public class SecondOrderDynamics3D
     {
-        Vector3 xp;
         Vector3 y, yd;
         float k1, k2, k3; // dynamics constants
-
+        Vector3 xp;
+        
         public SecondOrderDynamics3D(float f, float z, float r, Vector3 x0)
         {
             UpdateConstants(f, z, r);
@@ -73,19 +80,20 @@ namespace Scripts
             k3 = r * z / (2 * Mathf.PI * f);
         }
 
-        public Vector3 Update(float T, Vector3 x, Vector3? xd = null)
+        public Vector3 Update(float dt, Vector3 x, Vector3? xd = null)
         {
-            if(T == 0)
-                return x;
+
+            if(dt <= 0)
+                return y;
 
             if (xd == null)
             {
-                xd = (x - xp) / T;
+                xd = (x - xp) / dt;
                 xp = x;
             }
-            float k2_stable = Mathf.Max(Mathf.Max(k2, T * T / 2 + T * k1 / 2), T * k1); // clamp k2 to guarantee stability without jitter
-            y = y + T * yd;
-            yd = yd + T * (x + k3 * xd.Value - y - k1 * yd) / k2_stable; // integrate velocity by acceleration
+            float k2_stable = Mathf.Max(Mathf.Max(k2, dt * dt / 2 + dt * k1 / 2), dt * k1); // clamp k2 to guarantee stability without jitter
+            y += dt * yd;
+            yd += dt * (x + k3 * xd.Value - y - k1 * yd) / k2_stable; // integrate velocity by acceleration
             return y;
         }
 

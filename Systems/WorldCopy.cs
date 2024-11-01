@@ -11,15 +11,15 @@ public class DynamicObject
 }
     
 public class WorldCopy : MonoBehaviour
-{
-    [Title("Parents")]
-    public Transform StaticParent;
-    public Transform DynamicParent;
-
+{    
     [Title("Objects")]
     public List<Transform> staticTransforms;
     public List<Transform> dynamicTransforms;
     public List<DynamicObject> dynamicObjects; // For more complicated objects (hierarchy or scripts)
+
+    [Title("Parents")]
+    public Transform StaticCopyParent;
+    public Transform DynamicCopyParent;
 
     [Title("Parameters")]
     public Vector3 copyVector = new(5, 0, 0);
@@ -34,14 +34,16 @@ public class WorldCopy : MonoBehaviour
         // Static Init
         foreach (Transform tf in staticTransforms)
         {
-            Instantiate(tf.gameObject, tf.position + copyVector, tf.rotation, StaticParent);
+            GameObject copyGO = Instantiate(tf.gameObject, tf.position + copyVector, tf.rotation, StaticCopyParent);
+
+            SetPositions(tf, copyGO.transform);
         }
 
         // Dynamic Init
         dynamicTransformCopies = new ();
         foreach (Transform tf in dynamicTransforms)
         {
-            GameObject copy = Instantiate(tf.gameObject, tf.position, tf.rotation, DynamicParent);
+            GameObject copy = Instantiate(tf.gameObject, tf.position, tf.rotation, DynamicCopyParent);
             copy.transform.localScale = tf.localScale;
             dynamicTransformCopies.Add(copy.transform);
         }
@@ -49,7 +51,7 @@ public class WorldCopy : MonoBehaviour
         dynamicObjectCopies = new ();
         foreach (DynamicObject obj in dynamicObjects)
         {
-            GameObject copy = Instantiate(obj.prefab, obj.mainTf.position, obj.mainTf.rotation, DynamicParent);
+            GameObject copy = Instantiate(obj.prefab, obj.mainTf.position, obj.mainTf.rotation, DynamicCopyParent);
             copy.transform.localScale = obj.mainTf.localScale;
             dynamicObjectCopies.Add(copy.transform);
         }
