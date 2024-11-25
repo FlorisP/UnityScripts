@@ -179,7 +179,8 @@ public class InputBasics : MonoBehaviour
         lastTimer = Time.time - pressTime;
 
         // Swipe
-        swipeVector = screenPosition - touchData[0].Position;        
+        swipeVector = screenPosition - touchData[0].Position;
+        swipeLength = swipeVector.magnitude / ScreenDiagonal;
         swipeAngle = Mathf.Atan2(swipeVector.x, swipeVector.y) * Mathf.Rad2Deg;
 
         if (swipeLength > minSwipeLength)
