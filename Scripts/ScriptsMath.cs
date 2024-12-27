@@ -52,12 +52,20 @@ namespace Scripts
             {return new Vector3(original.x, newValue, original.z);}
         public static Vector3 Vector3zChange(Vector3 original, float newValue)
             {return new Vector3(original.x, original.y, newValue);}
-    
+            
+        public static float GetAngle360(Vector2 origin, Vector2 target)
+        {
+            Vector2 direction = target - origin;
+            double angleRadians = Mathf.Atan2(-direction.x, direction.y); // Inverted Y for 0 = up
+            double angleDegrees = angleRadians * (180 / Mathf.PI);
+            return (float)((angleDegrees + 360) % 360);         // Ensure angle is in 0-360 range
+        } 
    }
 
     class MathAngles
     {
         public static float BoundAngle(float angle){return Mathf.Repeat(angle + 180f, 360f) -180f;}
+
 
         public static Vector2 AngleToVector2(float angle) // 0*=(0,1) 90*=((1,0))
         {
@@ -92,6 +100,7 @@ namespace Scripts
             return BoundAngle(angle);
         }
 
+
         /// <summary> Mathf.MoveTowardsAngle in Rads </summary> 
         public static float MoveTowardsAngle(float current, float target, float maxDelta)
         {
@@ -118,6 +127,7 @@ namespace Scripts
             else//(delta > Mathf.PI)    // Breaking Pi Circle
                 return (current < target) ? -1 : 1;
         }
+        
     }
 
     class MathGeometry

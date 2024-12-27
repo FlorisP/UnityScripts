@@ -4,7 +4,7 @@ using Sirenix.OdinInspector;
 
 public class UISystem : MonoBehaviour
 {
-    // TODO Fade / transform with dynamics
+    // todo Fade / transform with dynamics
 
 
     public void Activate()

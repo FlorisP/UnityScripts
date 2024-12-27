@@ -7,28 +7,28 @@ using Sirenix.OdinInspector;
 public class ScreenShake : MonoBehaviour
 {
     [Title("Shake Settings")]
-    [SerializeField, Range(0.1f, 30f), Tooltip("How quickly the shake moves")]
-    private float frequency = 10f;
+    [Range(0.1f, 30f), Tooltip("How quickly the shake moves")]
+    public float frequency = 10f;
     
-    [SerializeField, Range(0f, 2f), Tooltip("Maximum position offset")]
-    private float maxAmplitude = 0.5f;
+    [ Range(0f, 2f), Tooltip("Maximum position offset")]
+    public float maxAmplitude = 0.5f;
     
-    [SerializeField, Tooltip("Animation curve controlling shake strength over time (0-1 on Y axis)")]
-    private AnimationCurve amplitudeCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
+    [Tooltip("Animation curve controlling shake strength over time (0-1 on Y axis)")]
+    public AnimationCurve amplitudeCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
     
-    [SerializeField, Range(0.1f, 2f), Tooltip("Duration of the shake in seconds")]
-    private float shakeDuration = 0.5f;
+    [Range(0f, 2f), Tooltip("Duration of the shake in seconds")]
+    public float shakeDuration = 0.5f;
     
-    [SerializeField, Tooltip("Whether to also rotate the camera during shake")]
-    private bool useRotation = true;
+    [Tooltip("Whether to also rotate the camera during shake")]
+    public bool useRotation = true;
     
-    [SerializeField, ShowIf("useRotation"), Range(0f, 15f), Tooltip("Maximum rotation angle")]
-    private float maxRotationStrength = 5f;
+    [ShowIf("useRotation"), Range(0f, 15f), Tooltip("Maximum rotation angle")]
+    public float maxRotationStrength = 5f;
 
-    private Vector3 originalPosition;
-    private Quaternion originalRotation;
-    private Vector3 noiseOffset;
-    private Coroutine currentShakeCoroutine;
+    Vector3 originalPosition;
+    Quaternion originalRotation;
+    Vector3 noiseOffset;
+    Coroutine currentShakeCoroutine;
     
     [Button]
     public void AddShake(float strength = 1f)

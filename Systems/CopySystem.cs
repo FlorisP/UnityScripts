@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using Scripts;
 
 [Serializable]
 public class DynamicObject
@@ -22,9 +23,10 @@ public class CopySystem : MonoBehaviour
     public Vector3 centerPoint = Vector3.zero;
     public bool isTwoSided = true;
 
-    void Awake()
+    [Button] public void CopyStaticTransforms()
     {
-        // Static Initialization
+        Objects.DestroyChildren(StaticCopyParent);
+
         foreach (Transform tf in staticTransforms)
         {
             if(isTwoSided){

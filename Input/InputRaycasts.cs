@@ -7,7 +7,7 @@ using Sirenix.OdinInspector;
 public class InputRaycasts : MonoBehaviour
 {
     public bool is2D;
-    public int maxHits = -1; // TODO    
+    public int maxHits = -1; // todo    
     [ReadOnly] public RaycastHit[] hits;
 
     InputBasics input;

@@ -51,6 +51,12 @@ namespace Scripts
             return y;
         }
 
+        public void SetPosition(float newPosition, bool resetSpeed)
+        {
+            y = newPosition;
+            if (resetSpeed) yd = 0;
+        }
+
         public void UpdateFZR(Vector3 fzr)
             { UpdateConstants(fzr.x, fzr.y, fzr.z); }
 
@@ -97,11 +103,10 @@ namespace Scripts
             return y;
         }
 
-        public void SetCurrentValue(Vector3 newY, Vector3 newYd = default)
+        public void SetPosition(Vector3 newPosition, bool resetSpeed)
         {
-            y = newY;
-            yd = newYd == default ? Vector3.zero : newYd;
-            xp = newY; // Optional: also set xp to newY if you want to reset the target position
+            y = newPosition;
+            if (resetSpeed) yd = Vector3.zero;
         }
 
         public void UpdateFZR(Vector3 fzr)

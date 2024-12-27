@@ -2,7 +2,7 @@ using System.Collections;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-// TODO Spin, Particles, respawn
+// todo Spin, Particles, respawn
 
 public class Collectable : MonoBehaviour
 {
