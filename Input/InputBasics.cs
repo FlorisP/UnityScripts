@@ -95,11 +95,21 @@ public class InputBasics : MonoBehaviour
             else if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
                 PressEnd();
         }
+        else
+        {
+            screenPosition = Input.mousePosition;
+            if (Input.GetMouseButtonDown(0))
+                PressBegin();
+            else if (Input.GetMouseButton(0))
+                PressHold();
+            else if (Input.GetMouseButtonUp(0))
+                PressEnd();
+        }
     }
 
     void PressBegin()
     {
-        touchBeganOnUI = EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId);
+        touchBeganOnUI = EventSystem.current.IsPointerOverGameObject() || (Input.touchCount > 0 && EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId));
        
         if (ignoreStartOnUI && touchBeganOnUI) 
             return;
@@ -186,7 +196,7 @@ public class InputBasics : MonoBehaviour
         if (swipeLength > minSwipeLength)
             hasSwiped = true;
 
-        PressEndEvent?.Invoke();                
+        PressEndEvent?.Invoke();
     }
 
 }

@@ -6,6 +6,8 @@ using Sirenix.OdinInspector;
 
 public class ScreenShake : MonoBehaviour
 {
+    public bool shakeEnabled = true;
+
     [Title("Shake Settings")]
     [Range(0.1f, 30f), Tooltip("How quickly the shake moves")]
     public float frequency = 10f;
@@ -33,6 +35,9 @@ public class ScreenShake : MonoBehaviour
     [Button]
     public void AddShake(float strength = 1f)
     {
+        if(!shakeEnabled)
+            return;
+
         if (currentShakeCoroutine != null)
         {
             StopCoroutine(currentShakeCoroutine);
