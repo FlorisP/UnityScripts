@@ -46,6 +46,11 @@ public class InputBasics : MonoBehaviour
     [ReadOnly] public float swipeLength;
     [ReadOnly] public float swipeAngle;
 
+    [Title("Debug")]
+    public bool ignoreStartOnUI = true;
+    [ShowInInspector] public float ScreenDiagonal => Mathf.Sqrt(Screen.width * Screen.width + Screen.height * Screen.height);
+    [ShowInInspector] public float RelativePullLength => pullVector.magnitude / ScreenDiagonal;
+
     List<TouchData> touchData = new();    
     class TouchData
     {
@@ -60,21 +65,13 @@ public class InputBasics : MonoBehaviour
     }
 
     // Singleton
-    static InputBasics instance;
-    public static InputBasics Instance
-    {   
-        get {
-            if (instance == null)
-                instance = FindFirstObjectByType<InputBasics>();
-            return instance;
-        }
-    }
+    static InputBasics _instance;
+    public static InputBasics Instance => _instance = _instance != null ? _instance : FindFirstObjectByType<InputBasics>();
 
-    [Title("Debug")]
-    public bool ignoreStartOnUI = true;
-    [ShowInInspector] public float ScreenDiagonal => Mathf.Sqrt(Screen.width * Screen.width + Screen.height * Screen.height);
-    [ShowInInspector] public float RelativePullLength => pullVector.magnitude / ScreenDiagonal;
-    
+    public bool OnUI => _instance.ignoreStartOnUI && _instance.touchBeganOnUI;
+    public static bool JustPressed_ => _instance.justPressed && !Instance.OnUI;
+
+
     // UNITY EDITOR Editor script implements Pull and Swipe indicator circle here
 
     void Update()
@@ -111,9 +108,6 @@ public class InputBasics : MonoBehaviour
     {
         touchBeganOnUI = EventSystem.current.IsPointerOverGameObject() || (Input.touchCount > 0 && EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId));
        
-        if (ignoreStartOnUI && touchBeganOnUI) 
-            return;
-
         float oldPressTime = pressTime;
         float oldPressTimer = pressTimer;
         pullVector = Vector2.zero;
@@ -141,10 +135,7 @@ public class InputBasics : MonoBehaviour
     }
 
     void PressHold()
-    {
-        if (ignoreStartOnUI && touchBeganOnUI) 
-            return;
-        
+    {        
         // Press
         justPressed = false;
         pressTimer = Time.time - pressTime;
@@ -169,9 +160,6 @@ public class InputBasics : MonoBehaviour
 
     void PressEnd()
     {
-        if (ignoreStartOnUI && touchBeganOnUI) 
-            return;
-
         // Tap
         if (pressTimer < tapTimeout){
             isTapping = true;

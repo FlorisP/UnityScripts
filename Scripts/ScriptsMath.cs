@@ -88,9 +88,9 @@ namespace Scripts
 
         public static Vector2 RotateVector(Vector2 v, float degrees) // Clockwise
         {
-            float radians = degrees * Mathf.Deg2Rad;
-            float sin = Mathf.Sin(-radians);
-            float cos = Mathf.Cos(-radians);
+            float radians = -degrees * Mathf.Deg2Rad;
+            float sin = Mathf.Sin(radians);
+            float cos = Mathf.Cos(radians);
             return new Vector2( cos * v.x - sin * v.y, sin * v.x + cos * v.y );
         }
 

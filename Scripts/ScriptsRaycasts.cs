@@ -17,20 +17,15 @@ namespace Scripts
 
             for (int i = 0; i < numberOfRays; i++)
             {
-                Vector2 rayOrigin = left + (rayDirection.normalized * raySpacing * i);
+                Vector2 rayOrigin = left + (i * raySpacing * rayDirection.normalized);
                 RaycastHit2D hit = Physics2D.Raycast(rayOrigin, perpendicularDirection, distance, layerMask);
                 hits[i] = hit;
 
+                // Red line for a hit, green for no hit
                 if (hit.collider != null)
-                {
-                    // Draw a red line for a hit
                     Debug.DrawLine(rayOrigin, hit.point, Color.red);
-                }
                 else
-                {
-                    // Draw a green line for no collision
                     Debug.DrawLine(rayOrigin, rayOrigin + perpendicularDirection * distance, Color.green);
-                }
             }
             return hits;
         }
@@ -42,20 +37,15 @@ namespace Scripts
             for (int i = 0; i < numberOfRays; i++)
             {
                 float angle = 2 * Mathf.PI * i / numberOfRays;
-                Vector2 direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+                Vector2 direction = new(Mathf.Cos(angle), Mathf.Sin(angle));
                 RaycastHit2D hit = Physics2D.Raycast(center, direction, distance, layerMask);
                 hits[i] = hit;
 
-                // Draw a red line for a hit
+                // Red line for a hit, green for no hit
                 if (hit.collider != null)
-                {
                     Debug.DrawLine(center, hit.point, Color.red);
-                }
                 else
-                {
-                    // Draw a green line for no collision
                     Debug.DrawLine(center, center + direction * distance, Color.green);
-                }
             }
             
             return hits;
@@ -92,10 +82,9 @@ namespace Scripts
         {
             if (layerMask == default)
                 layerMask = -1; // all
-            if (pattern == null)
-                pattern = new int[] { 1, 8, 8, 8, 1 }; // Default ray pattern
+            pattern ??= new int[] { 1, 8, 8, 8, 1 }; // Default ray pattern
 
-            List<RaycastHit> hits = new List<RaycastHit>();
+            List<RaycastHit> hits = new();
 
             int layerCount = pattern.Length;
             float layerHeight = 2f / (layerCount - 1); // Height between layers, ranging from -1 to 1
@@ -145,7 +134,7 @@ namespace Scripts
                 float inclination = Mathf.Acos(1 - 2 * t);
                 float azimuth = angleIncrement * i;
 
-                Vector3 direction = new Vector3(
+                Vector3 direction = new(
                     Mathf.Sin(inclination) * Mathf.Cos(azimuth),
                     Mathf.Sin(inclination) * Mathf.Sin(azimuth),
                     Mathf.Cos(inclination)

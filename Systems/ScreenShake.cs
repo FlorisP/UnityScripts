@@ -27,6 +27,15 @@ public class ScreenShake : MonoBehaviour
     [ShowIf("useRotation"), Range(0f, 15f), Tooltip("Maximum rotation angle")]
     public float maxRotationStrength = 5f;
 
+    // Singleton
+    static ScreenShake _instance;
+    public static ScreenShake Instance => _instance = _instance != null ? _instance : FindFirstObjectByType<ScreenShake>();
+
+    public static void AddShake_(float strength = 1f) => Instance.AddShake(strength);
+    public static void StopShake_() => Instance.StopShake();
+    public static bool ShakeEnabled_ { get => Instance.shakeEnabled; set => Instance.shakeEnabled = value; }
+
+
     Vector3 originalPosition;
     Quaternion originalRotation;
     Vector3 noiseOffset;
