@@ -1,17 +1,25 @@
+using UnityEngine;
+
 namespace Scripts
 {
-    using UnityEngine;
-
-    class Objects : MonoBehaviour
+    class Components : MonoBehaviour
     {
+        // Transform
         public static void DestroyChildren(Transform target)
         {
             for (int i = target.childCount - 1; i >= 0; i--)
                 DestroyImmediate(target.GetChild(i).gameObject);
         }
+        
+        public static void SwitchXScale(Transform target)
+        {
+            Vector3 scale = target.localScale;
+            scale.x = -scale.x;
+            target.localScale = scale;
+        }
 
-        public static void DestroyChildrenGO(GameObject go) 
-            => DestroyChildren(go.transform);
+        // GameObject
+        public static void DestroyChildrenGO(GameObject go) => DestroyChildren(go.transform);
         
         // Camera
         (Vector2 widthSpan, Vector2 heightSpan) FrameSpanFromCamera(float distance)

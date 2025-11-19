@@ -2,58 +2,49 @@ using UnityEngine;
 using System.Collections;
 using Sirenix.OdinInspector;
 
-// Set as child of Camera Follow and include Camera in this or child object
-
 public class ScreenShake : MonoBehaviour
 {
+    public Transform shakeTransform;
     public bool shakeEnabled = true;
 
     [Title("Shake Settings")]
-    [Range(0.1f, 30f), Tooltip("How quickly the shake moves")]
-    public float frequency = 10f;
-    
-    [ Range(0f, 2f), Tooltip("Maximum position offset")]
-    public float maxAmplitude = 0.5f;
-    
-    [Tooltip("Animation curve controlling shake strength over time (0-1 on Y axis)")]
+    [Range(0f, 2f)] public float duration = 0.15f;
+    [Range(0.1f, 30f)] public float frequency = 10f;
+    [Range(0f, 2f)] public float amplitude = 1f;
     public AnimationCurve amplitudeCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
-    
-    [Range(0f, 2f), Tooltip("Duration of the shake in seconds")]
-    public float shakeDuration = 0.5f;
-    
-    [Tooltip("Whether to also rotate the camera during shake")]
+
     public bool useRotation = true;
-    
-    [ShowIf("useRotation"), Range(0f, 15f), Tooltip("Maximum rotation angle")]
-    public float maxRotationStrength = 5f;
+    [ShowIf("useRotation"), Range(0f, 2f)] public float rotationStrength = 1f;
 
     // Singleton
     static ScreenShake _instance;
     public static ScreenShake Instance => _instance = _instance != null ? _instance : FindFirstObjectByType<ScreenShake>();
 
-    public static void AddShake_(float strength = 1f) => Instance.AddShake(strength);
-    public static void StopShake_() => Instance.StopShake();
     public static bool ShakeEnabled_ { get => Instance.shakeEnabled; set => Instance.shakeEnabled = value; }
+
+    public static void AddShake_(float strength = 1f) => Instance.AddShake(strength);
+    public static void UIShake_() => Instance.AddShake(1f, true);
+    public static void StopShake_() => Instance.StopShake();
 
 
     Vector3 originalPosition;
     Quaternion originalRotation;
     Vector3 noiseOffset;
     Coroutine currentShakeCoroutine;
-    
-    [Button]
-    public void AddShake(float strength = 1f)
+    bool useUnscaledTimeThisShake;
+
+    public void AddShake(float strength = 1f, bool unscaled = false)
     {
-        if(!shakeEnabled)
+        if (!shakeEnabled)
             return;
 
         if (currentShakeCoroutine != null)
-        {
             StopCoroutine(currentShakeCoroutine);
-        }
+
+        useUnscaledTimeThisShake = unscaled;
         currentShakeCoroutine = StartCoroutine(ShakeRoutine(strength));
     }
-    
+
     public void StopShake()
     {
         if (currentShakeCoroutine != null)
@@ -61,60 +52,61 @@ public class ScreenShake : MonoBehaviour
             StopCoroutine(currentShakeCoroutine);
             currentShakeCoroutine = null;
         }
-        
-        transform.SetLocalPositionAndRotation(originalPosition, originalRotation);
+
+        shakeTransform.SetLocalPositionAndRotation(originalPosition, originalRotation);
     }
 
     IEnumerator ShakeRoutine(float strength)
     {
         noiseOffset = new Vector3(Random.Range(0f, 100f), Random.Range(0f, 100f), Random.Range(0f, 100f));
 
+        originalPosition = shakeTransform.localPosition;
+        originalRotation = shakeTransform.localRotation;
+
         float elapsedTime = 0f;
-        
-        while (elapsedTime < shakeDuration)
+
+        while (elapsedTime < duration)
         {
-            float currentStrength = amplitudeCurve.Evaluate(elapsedTime / shakeDuration) * strength;
-            ApplyShake(currentStrength);
-            
-            elapsedTime += Time.deltaTime;
+            float dt = useUnscaledTimeThisShake ? Time.unscaledDeltaTime : Time.deltaTime;
+            float time = useUnscaledTimeThisShake ? Time.unscaledTime : Time.time;
+
+            float currentStrength = amplitudeCurve.Evaluate(elapsedTime / duration) * strength;
+            ApplyShake(currentStrength, time);
+
+            elapsedTime += dt;
             yield return null;
         }
 
-        // Clean up when shake is finished
-        transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+        shakeTransform.SetLocalPositionAndRotation(originalPosition, originalRotation);
         currentShakeCoroutine = null;
     }
-    
-    void ApplyShake(float strength)
+
+    void ApplyShake(float strength, float time)
     {
-        // Calculate position offset
-        Vector3 shakeOffset = CalculateShakeOffset(strength);
-        transform.localPosition = originalPosition + shakeOffset;
-        
-        // Calculate rotation if enabled
+        Vector3 shakeOffset = CalculateShakeOffset(strength, time);
+        shakeTransform.localPosition = originalPosition + shakeOffset;
+
         if (useRotation)
         {
             Quaternion shakeRotation = CalculateShakeRotation(strength);
-            transform.localRotation = originalRotation * shakeRotation;
+            shakeTransform.localRotation = originalRotation * shakeRotation;
         }
     }
-    
-    Vector3 CalculateShakeOffset(float strength)
+
+    Vector3 CalculateShakeOffset(float strength, float time)
     {
-        float time = Time.time;
-        
         Vector3 offset;
         offset.x = Mathf.PerlinNoise(time * frequency + noiseOffset.x, 0f) * 2f - 1f;
         offset.y = Mathf.PerlinNoise(time * frequency + noiseOffset.y, 0f) * 2f - 1f;
         offset.z = Mathf.PerlinNoise(time * frequency + noiseOffset.z, 0f) * 2f - 1f;
-        
-        return maxAmplitude * strength * offset;
+
+        return amplitude * strength * offset;
     }
-    
+
     Quaternion CalculateShakeRotation(float strength)
     {
-        float angle = maxRotationStrength * strength;
-        
+        float angle = rotationStrength * strength;
+
         return Quaternion.Euler(
             Random.Range(-angle, angle),
             Random.Range(-angle, angle),

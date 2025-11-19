@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace Scripts
@@ -26,39 +25,43 @@ namespace Scripts
         void UpdateConstants(float f, float z, float r)
         {
             f = Mathf.Max(f, 0.01f);
+            float omega = 2f * Mathf.PI * f;
 
             k1 = z / (Mathf.PI * f);
-            k2 = 1 / ((2 * Mathf.PI * f) * (2 * Mathf.PI * f));
-            k3 = r * z / (2 * Mathf.PI * f);
+            k2 = 1f / (omega * omega);
+            k3 = r * z / omega;
         }
 
         public float Update(float dt, float target, float? xd = null)
         {
-            if(dt <= 0)
+            if (dt <= 0)
                 return y;
 
             // Estimate target change
-            if (xd == null){ 
+            if (xd == null)
+            {
                 xd = (target - previous_target) / dt;
                 previous_target = target;
             }
 
             // Calculate position and new speed
-            float k2_stable = Math.Max(Math.Max(k2, dt*dt/2 + dt*k1/2), dt*k1); // clamp k2 to guarantee stability without jitter
+            float k2_stable = Mathf.Max(Mathf.Max(k2, dt * dt / 2f + dt * k1 / 2f), dt * k1);
             y += dt * yd;
-            yd += dt * (target - y + k3*(float)xd - k1*yd) / k2_stable; // integrate velocity by acceleration
-            
+            yd += dt * (target - y + k3 * (float)xd - k1 * yd) / k2_stable; // integrate velocity by acceleration
+
             return y;
         }
 
         public void SetPosition(float newPosition, bool resetSpeed)
         {
             y = newPosition;
+            previous_target = newPosition;
             if (resetSpeed) yd = 0;
         }
 
-        public void UpdateFZR(Vector3 fzr)
-            { UpdateConstants(fzr.x, fzr.y, fzr.z); }
+        public void AddImpulse(float impulse) => yd += impulse;
+
+        public void UpdateFZR(Vector3 fzr) => UpdateConstants(fzr.x, fzr.y, fzr.z);
 
     }
 
@@ -67,7 +70,7 @@ namespace Scripts
         Vector3 y, yd;
         float k1, k2, k3; // dynamics constants
         Vector3 xp;
-        
+
         public SecondOrderDynamics3D(float f, float z, float r, Vector3 x0)
         {
             UpdateConstants(f, z, r);
@@ -80,16 +83,17 @@ namespace Scripts
         void UpdateConstants(float f, float z, float r)
         {
             f = Mathf.Max(f, 0.01f);
+            float omega = 2f * Mathf.PI * f;
 
             k1 = z / (Mathf.PI * f);
-            k2 = 1 / ((2 * Mathf.PI * f) * (2 * Mathf.PI * f));
-            k3 = r * z / (2 * Mathf.PI * f);
+            k2 = 1f / (omega * omega);
+            k3 = r * z / omega;
         }
 
         public Vector3 Update(float dt, Vector3 x, Vector3? xd = null)
         {
 
-            if(dt <= 0)
+            if (dt <= 0)
                 return y;
 
             if (xd == null)
@@ -97,7 +101,7 @@ namespace Scripts
                 xd = (x - xp) / dt;
                 xp = x;
             }
-            float k2_stable = Mathf.Max(Mathf.Max(k2, dt * dt / 2 + dt * k1 / 2), dt * k1); // clamp k2 to guarantee stability without jitter
+            float k2_stable = Mathf.Max(Mathf.Max(k2, dt * dt / 2f + dt * k1 / 2f), dt * k1);
             y += dt * yd;
             yd += dt * (x + k3 * xd.Value - y - k1 * yd) / k2_stable; // integrate velocity by acceleration
             return y;
@@ -106,11 +110,13 @@ namespace Scripts
         public void SetPosition(Vector3 newPosition, bool resetSpeed)
         {
             y = newPosition;
+            xp = newPosition;
             if (resetSpeed) yd = Vector3.zero;
         }
 
-        public void UpdateFZR(Vector3 fzr)
-            { UpdateConstants(fzr.x, fzr.y, fzr.z); }
+        public void AddImpulse(Vector3 impulse) => yd += impulse;
+
+        public void UpdateFZR(Vector3 fzr) => UpdateConstants(fzr.x, fzr.y, fzr.z);        
 
     }
 
