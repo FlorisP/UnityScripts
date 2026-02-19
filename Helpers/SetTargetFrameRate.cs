@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class SetTargetFrameRate : MonoBehaviour
 {
+    #if UNITY_EDITOR
+
     public bool isActive = true;
     public int targetFPS = 60;
     public bool printValue = false;
@@ -23,4 +25,6 @@ public class SetTargetFrameRate : MonoBehaviour
             print($"Changed Target FPS: {targetFPS}");
         }
     }
+    
+    #endif
 }

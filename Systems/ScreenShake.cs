@@ -22,9 +22,8 @@ public class ScreenShake : MonoBehaviour
 
     public static bool ShakeEnabled_ { get => Instance.shakeEnabled; set => Instance.shakeEnabled = value; }
 
-    public static void AddShake_(float strength = 1f) => Instance.AddShake(strength);
-    public static void UIShake_() => Instance.AddShake(1f, true);
-    public static void StopShake_() => Instance.StopShake();
+    public static void AddShake_(float strength = 1f, float duration = 0.15f, bool unscaled = true, bool overwrite = false) => Instance.AddShake(strength, duration, unscaled, overwrite);
+    public static void UIShake_() => Instance.AddShake(1f, _instance.duration);
 
 
     Vector3 originalPosition;
@@ -33,16 +32,19 @@ public class ScreenShake : MonoBehaviour
     Coroutine currentShakeCoroutine;
     bool useUnscaledTimeThisShake;
 
-    public void AddShake(float strength = 1f, bool unscaled = false)
+    public void AddShake(float strength, float duration, bool unscaled = true, bool overwrite = false)
     {
         if (!shakeEnabled)
             return;
 
         if (currentShakeCoroutine != null)
-            StopCoroutine(currentShakeCoroutine);
+        {
+            if(overwrite) StopShake();
+            else return;
+        }
 
         useUnscaledTimeThisShake = unscaled;
-        currentShakeCoroutine = StartCoroutine(ShakeRoutine(strength));
+        currentShakeCoroutine = StartCoroutine(ShakeRoutine(strength, duration));
     }
 
     public void StopShake()
@@ -56,7 +58,7 @@ public class ScreenShake : MonoBehaviour
         shakeTransform.SetLocalPositionAndRotation(originalPosition, originalRotation);
     }
 
-    IEnumerator ShakeRoutine(float strength)
+    IEnumerator ShakeRoutine(float strength, float duration)
     {
         noiseOffset = new Vector3(Random.Range(0f, 100f), Random.Range(0f, 100f), Random.Range(0f, 100f));
 

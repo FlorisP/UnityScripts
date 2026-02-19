@@ -120,7 +120,41 @@ namespace Scripts
 
     }
 
-    
+    // Angle-safe second order dynamics (degrees, 0–360 wrap)
+    public class SecondOrderDynamics360
+    {
+        readonly SecondOrderDynamics dynamics;
+
+        float angleUnwrapped; // can go beyond 0..360
+
+        public SecondOrderDynamics360(float f, float z, float r, float angle0)
+        {
+            float a0 = Mathf.Repeat(angle0, 360f);
+            angleUnwrapped = a0;
+            dynamics = new SecondOrderDynamics(f, z, r, angleUnwrapped);
+        }
+
+        public float Update(float dt, float targetAngle, float? targetAngularVelocity = null)
+        {
+            float currentWrapped = Mathf.Repeat(angleUnwrapped, 360f);
+            float targetWrapped = Mathf.Repeat(targetAngle, 360f);
+
+            float delta = Mathf.DeltaAngle(currentWrapped, targetWrapped); // shortest path [-180..180]
+            float targetUnwrapped = angleUnwrapped + delta;
+
+            angleUnwrapped = dynamics.Update(dt, targetUnwrapped, targetAngularVelocity);
+            return Mathf.Repeat(angleUnwrapped, 360f);
+        }
+
+        public void SetAngle(float angle, bool resetSpeed)
+        {
+            angleUnwrapped = Mathf.Repeat(angle, 360f);
+            dynamics.SetPosition(angleUnwrapped, resetSpeed);
+        }
+
+        public void AddImpulse(float angularImpulse) => dynamics.AddImpulse(angularImpulse);
+        public void UpdateFZR(Vector3 fzr) => dynamics.UpdateFZR(fzr);
+    }
 
 }
 
