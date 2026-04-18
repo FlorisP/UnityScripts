@@ -107,7 +107,7 @@ namespace Scripts
             return y;
         }
 
-        public void SetPosition(Vector3 newPosition, bool resetSpeed)
+        public void SetPosition(Vector3 newPosition, bool resetSpeed = false)
         {
             y = newPosition;
             xp = newPosition;

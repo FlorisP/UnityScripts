@@ -61,11 +61,11 @@ public class InputBasics : MonoBehaviour
         }
     }
 
-    static InputBasics _instance;
-    public static InputBasics Instance => _instance = _instance != null ? _instance : FindFirstObjectByType<InputBasics>();
+    static InputBasics instance;
+    public static InputBasics Instance => instance ??= FindFirstObjectByType<InputBasics>();
 
-    public bool OnUI => _instance.ignoreStartOnUI && _instance.touchBeganOnUI;
-    public static bool JustPressed_ => _instance.justPressed && !Instance.OnUI;
+    public bool OnUI => Instance.ignoreStartOnUI && Instance.touchBeganOnUI;
+    public static bool JustPressed_ => Instance.justPressed && !Instance.OnUI;
 
     void OnEnable()
     {
