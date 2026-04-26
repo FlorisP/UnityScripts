@@ -1,12 +1,12 @@
 using UnityEngine;
-using System;
 using UnityEngine.EventSystems;
-using Sirenix.OdinInspector;
-using System.Collections.Generic;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.EnhancedTouch;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 using TouchPhase = UnityEngine.InputSystem.TouchPhase;
+using System;
+using System.Collections.Generic;
+using Sirenix.OdinInspector;
 
 public class InputBasics : MonoBehaviour
 {
@@ -14,27 +14,25 @@ public class InputBasics : MonoBehaviour
     public event Action PressHoldEvent;
     public event Action PressEndEvent;
 
+    public bool ignoreStartOnUI = true;
+
     [Title("Press")]
     [ReadOnly] public bool isPressing;
-    [ReadOnly] public bool justPressed;
-    [ReadOnly] public bool justReleased;
+    bool justPressed;
+    bool justReleased;
+
     [ReadOnly] public float pressTimer;
     [ReadOnly] public float lastTimer;
     float pressTime;
 
-    [Title("Pull")]
-    [ReadOnly] public bool touchBeganOnUI;
     [ReadOnly] public Vector2 screenPosition;
-    [ReadOnly] public Vector2 screenStartPosition;
+    [ReadOnly] public Vector2 pressPosition;
+    [ReadOnly] public bool touchBeganOnUI;
+
+    [Title("Pull")]
     [ReadOnly] public Vector2 pullVector;
     [ReadOnly] public float pullAngle;
-
-    [Title("Tap")]
-    public float tapTimeout = 0.2f;
-    [ReadOnly] public bool isTapping;
-    [ReadOnly] public int consecutiveTaps;
-    [ReadOnly] public float timeBetweenTaps;
-
+    
     [Title("Swipe")]
     public float swipeDuration = 0.3f;
     public float minSwipeLength = 0.1f;
@@ -43,13 +41,19 @@ public class InputBasics : MonoBehaviour
     [ReadOnly] public float swipeLength;
     [ReadOnly] public float swipeAngle;
 
+    [Title("Tap")]
+    public float tapTimeout = 0.2f;
+    [ReadOnly] public bool isTapping;
+    [ReadOnly] public int consecutiveTaps;
+    [ReadOnly] public float timeBetweenTaps;
+
     [Title("Debug")]
-    public bool ignoreStartOnUI = true;
-    [ShowInInspector] public float ScreenDiagonal => Mathf.Sqrt(Screen.width * Screen.width + Screen.height * Screen.height);
-    [ShowInInspector] public float RelativePullLength => pullVector.magnitude / ScreenDiagonal;
+    [ReadOnly] public bool debug_OnUI;
+    [ReadOnly] public float debug_pullLength;
+    [ReadOnly] public float debug_screenDiagonal;
 
     List<TouchData> touchData = new();
-    class TouchData
+    public class TouchData
     {
         public Vector2 Position;
         public float Timer;
@@ -61,26 +65,33 @@ public class InputBasics : MonoBehaviour
         }
     }
 
+
+    // Singleton
     static InputBasics instance;
-    public static InputBasics Instance => instance ??= FindFirstObjectByType<InputBasics>();
+    public static InputBasics Instance => instance = instance != null ? instance : FindFirstObjectByType<InputBasics>();
 
-    public bool OnUI => Instance.ignoreStartOnUI && Instance.touchBeganOnUI;
     public static bool JustPressed_ => Instance.justPressed && !Instance.OnUI;
+    public static bool JustReleased_ => Instance.justReleased && !Instance.OnUI;
+    public static bool JustSwiped_ => Instance.justReleased && Instance.hasSwiped && !Instance.OnUI;
 
-    void OnEnable()
-    {
-        EnhancedTouchSupport.Enable();
-    }
+    public static Vector2 PullDirection_ => Instance.pullVector.normalized;
+    public static float PullLength_ => Instance.pullVector.magnitude / ScreenDiagonal_;
+    public static float ScreenDiagonal_ =>  Mathf.Sqrt(Screen.width * Screen.width + Screen.height * Screen.height);
 
-    void OnDisable()
-    {
-        EnhancedTouchSupport.Disable();
-    }
+    public static bool IsPressing_ => Instance.isPressing;
+    public static bool JustTapped_ => JustReleased_ && Instance.isTapping;
+    public static List<TouchData> TouchData_ => Instance.touchData;
+
+    bool OnUI => ignoreStartOnUI && touchBeganOnUI;
 
     void Update()
     {
         justPressed = false;
         justReleased = false;
+
+        debug_OnUI = OnUI;
+        debug_pullLength = PullLength_;
+        debug_screenDiagonal = ScreenDiagonal_;
 
         bool hasTouch = Touch.activeTouches.Count > 0;
         bool pointerDown;
@@ -125,13 +136,17 @@ public class InputBasics : MonoBehaviour
 
     void PressBegin()
     {
-        touchBeganOnUI = EventSystem.current.IsPointerOverGameObject();
-
-        float oldPressTime = pressTime;
         pullVector = Vector2.zero;
+        swipeVector = Vector2.zero;
+        swipeLength = 0f;
+        swipeAngle = 0f;
+        hasSwiped = false;
 
         isPressing = true;
         justPressed = true;
+        touchBeganOnUI = EventSystem.current.IsPointerOverGameObject();
+
+        float oldPressTime = pressTime;
         pressTime = Time.time;
         pressTimer = 0f;
 
@@ -142,8 +157,7 @@ public class InputBasics : MonoBehaviour
             consecutiveTaps = 0;
         }
 
-        screenStartPosition = screenPosition;
-        hasSwiped = false;
+        pressPosition = screenPosition;
         touchData = new List<TouchData> { new(screenPosition, pressTimer) };
 
         PressBeginEvent?.Invoke();
@@ -152,20 +166,16 @@ public class InputBasics : MonoBehaviour
     void PressHold()
     {
         pressTimer = Time.time - pressTime;
-        pullVector = screenPosition - screenStartPosition;
+        pullVector = screenPosition - pressPosition;
         pullAngle = Mathf.Atan2(pullVector.y, pullVector.x) * Mathf.Rad2Deg;
 
         touchData.Add(new TouchData(screenPosition, pressTimer));
 
         int index = 0;
-        while (index < touchData.Count && touchData[index].Timer < pressTimer - swipeDuration)
-        {
+        while (index < touchData.Count && pressTimer > touchData[index].Timer + swipeDuration)
             index++;
-        }
         if (index > 0)
-        {
             touchData.RemoveRange(0, index);
-        }
 
         PressHoldEvent?.Invoke();
     }
@@ -189,12 +199,22 @@ public class InputBasics : MonoBehaviour
         lastTimer = Time.time - pressTime;
 
         swipeVector = screenPosition - touchData[0].Position;
-        swipeLength = swipeVector.magnitude / ScreenDiagonal;
         swipeAngle = Mathf.Atan2(swipeVector.x, swipeVector.y) * Mathf.Rad2Deg;
+        swipeLength = swipeVector.magnitude / ScreenDiagonal_;
 
         if (swipeLength > minSwipeLength)
             hasSwiped = true;
 
         PressEndEvent?.Invoke();
+    }
+    
+    void OnEnable()
+    {
+        EnhancedTouchSupport.Enable();
+    }
+
+    void OnDisable()
+    {
+        EnhancedTouchSupport.Disable();
     }
 }
