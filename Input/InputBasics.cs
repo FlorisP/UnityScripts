@@ -15,6 +15,7 @@ public class InputBasics : MonoBehaviour
     public event Action PressEndEvent;
 
     public bool ignoreStartOnUI = true;
+    const int UILayer = 5;
 
     [Title("Press")]
     [ReadOnly] public bool isPressing;
@@ -32,7 +33,7 @@ public class InputBasics : MonoBehaviour
     [Title("Pull")]
     [ReadOnly] public Vector2 pullVector;
     [ReadOnly] public float pullAngle;
-    
+
     [Title("Swipe")]
     public float swipeDuration = 0.3f;
     public float minSwipeLength = 0.1f;
@@ -47,12 +48,16 @@ public class InputBasics : MonoBehaviour
     [ReadOnly] public int consecutiveTaps;
     [ReadOnly] public float timeBetweenTaps;
 
+    [Title("Touch")]
+    [ReadOnly] public int activeTouchCount;
+
     [Title("Debug")]
     [ReadOnly] public bool debug_OnUI;
     [ReadOnly] public float debug_pullLength;
     [ReadOnly] public float debug_screenDiagonal;
 
     List<TouchData> touchData = new();
+
     public class TouchData
     {
         public Vector2 Position;
@@ -65,22 +70,29 @@ public class InputBasics : MonoBehaviour
         }
     }
 
-
     // Singleton
     static InputBasics instance;
     public static InputBasics Instance => instance = instance != null ? instance : FindFirstObjectByType<InputBasics>();
 
+    public static bool IsPressing_ => Instance.isPressing && !Instance.OnUI;
     public static bool JustPressed_ => Instance.justPressed && !Instance.OnUI;
     public static bool JustReleased_ => Instance.justReleased && !Instance.OnUI;
+    public static bool JustTapped_ => JustReleased_ && Instance.isTapping && !Instance.OnUI;
     public static bool JustSwiped_ => Instance.justReleased && Instance.hasSwiped && !Instance.OnUI;
+
+    public static int ActiveTouchCount_ => Instance.activeTouchCount;
+    public static bool HasMultipleTouches_ => Instance.activeTouchCount > 1;
+
+    public static float PressTimer_ => Instance.pressTimer;
 
     public static Vector2 PullDirection_ => Instance.pullVector.normalized;
     public static float PullLength_ => Instance.pullVector.magnitude / ScreenDiagonal_;
-    public static float ScreenDiagonal_ =>  Mathf.Sqrt(Screen.width * Screen.width + Screen.height * Screen.height);
-
-    public static bool IsPressing_ => Instance.isPressing;
-    public static bool JustTapped_ => JustReleased_ && Instance.isTapping;
+    public static Vector2 SwipeDirection_ => Instance.swipeVector.normalized;
+    public static float SwipeLength_ => Instance.swipeLength;
+    
     public static List<TouchData> TouchData_ => Instance.touchData;
+    public static float ScreenDiagonal_ => Mathf.Sqrt(Screen.width * Screen.width + Screen.height * Screen.height);
+
 
     bool OnUI => ignoreStartOnUI && touchBeganOnUI;
 
@@ -89,11 +101,13 @@ public class InputBasics : MonoBehaviour
         justPressed = false;
         justReleased = false;
 
+        activeTouchCount = Touch.activeTouches.Count;
+
         debug_OnUI = OnUI;
         debug_pullLength = PullLength_;
         debug_screenDiagonal = ScreenDiagonal_;
 
-        bool hasTouch = Touch.activeTouches.Count > 0;
+        bool hasTouch = activeTouchCount > 0;
         bool pointerDown;
         bool pointerHeld;
         bool pointerUp;
@@ -144,7 +158,10 @@ public class InputBasics : MonoBehaviour
 
         isPressing = true;
         justPressed = true;
-        touchBeganOnUI = EventSystem.current.IsPointerOverGameObject();
+
+        List<RaycastResult> results = new();
+        EventSystem.current.RaycastAll(new PointerEventData(EventSystem.current) { position = screenPosition }, results);
+        touchBeganOnUI = results.Exists(result => result.gameObject.layer == UILayer);
 
         float oldPressTime = pressTime;
         pressTime = Time.time;
@@ -174,6 +191,7 @@ public class InputBasics : MonoBehaviour
         int index = 0;
         while (index < touchData.Count && pressTimer > touchData[index].Timer + swipeDuration)
             index++;
+
         if (index > 0)
             touchData.RemoveRange(0, index);
 
@@ -195,7 +213,7 @@ public class InputBasics : MonoBehaviour
 
         isPressing = false;
         justReleased = true;
-        pressTimer = 0;
+        pressTimer = 0f;
         lastTimer = Time.time - pressTime;
 
         swipeVector = screenPosition - touchData[0].Position;
@@ -207,7 +225,7 @@ public class InputBasics : MonoBehaviour
 
         PressEndEvent?.Invoke();
     }
-    
+
     void OnEnable()
     {
         EnhancedTouchSupport.Enable();
