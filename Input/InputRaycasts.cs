@@ -64,8 +64,7 @@ public class InputRaycasts : MonoBehaviour
     {
         foreach (RaycastHit hit in hits)
         {
-            InputInteractive interactiveComponent = hit.collider.gameObject.GetComponent<InputInteractive>();            
-            if (interactiveComponent != null)
+            if (hit.collider.gameObject.TryGetComponent<InputInteractive>(out var interactiveComponent))
                 hitAction(interactiveComponent, hit);
         }
     }

@@ -177,7 +177,7 @@ public class InputBasics : MonoBehaviour
         pressPosition = screenPosition;
         touchData = new List<TouchData> { new(screenPosition, pressTimer) };
 
-        PressBeginEvent?.Invoke();
+        if (!OnUI) PressBeginEvent?.Invoke();
     }
 
     void PressHold()
@@ -195,7 +195,7 @@ public class InputBasics : MonoBehaviour
         if (index > 0)
             touchData.RemoveRange(0, index);
 
-        PressHoldEvent?.Invoke();
+        if (!OnUI) PressHoldEvent?.Invoke();
     }
 
     void PressEnd()
@@ -223,7 +223,7 @@ public class InputBasics : MonoBehaviour
         if (swipeLength > minSwipeLength)
             hasSwiped = true;
 
-        PressEndEvent?.Invoke();
+        if (!OnUI) PressEndEvent?.Invoke();
     }
 
     void OnEnable()
