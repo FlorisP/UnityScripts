@@ -43,7 +43,7 @@ public class InputBasics : MonoBehaviour
     [ReadOnly] public float swipeAngle;
 
     [Title("Tap")]
-    public float tapTimeout = 0.2f;
+    public float tapTimeout = 0.25f;
     [ReadOnly] public bool isTapping;
     [ReadOnly] public int consecutiveTaps;
     [ReadOnly] public float timeBetweenTaps;
@@ -56,23 +56,11 @@ public class InputBasics : MonoBehaviour
     [ReadOnly] public float debug_pullLength;
     [ReadOnly] public float debug_screenDiagonal;
 
-    List<TouchData> touchData = new();
-
-    public class TouchData
-    {
-        public Vector2 Position;
-        public float Timer;
-
-        public TouchData(Vector2 position, float timer)
-        {
-            Position = position;
-            Timer = timer;
-        }
-    }
-
     // Singleton
     static InputBasics instance;
     public static InputBasics Instance => instance = instance != null ? instance : FindFirstObjectByType<InputBasics>();
+
+    public static Vector2 ScreenPosition_ => Instance.screenPosition;
 
     public static bool IsPressing_ => Instance.isPressing && !Instance.OnUI;
     public static bool JustPressed_ => Instance.justPressed && !Instance.OnUI;
@@ -89,10 +77,8 @@ public class InputBasics : MonoBehaviour
     public static float PullLength_ => Instance.pullVector.magnitude / ScreenDiagonal_;
     public static Vector2 SwipeDirection_ => Instance.swipeVector.normalized;
     public static float SwipeLength_ => Instance.swipeLength;
-    
-    public static List<TouchData> TouchData_ => Instance.touchData;
-    public static float ScreenDiagonal_ => Mathf.Sqrt(Screen.width * Screen.width + Screen.height * Screen.height);
 
+    public static float ScreenDiagonal_ => Mathf.Sqrt(Screen.width * Screen.width + Screen.height * Screen.height);
 
     bool OnUI => ignoreStartOnUI && touchBeganOnUI;
 
@@ -108,9 +94,9 @@ public class InputBasics : MonoBehaviour
         debug_screenDiagonal = ScreenDiagonal_;
 
         bool hasTouch = activeTouchCount > 0;
-        bool pointerDown;
-        bool pointerHeld;
-        bool pointerUp;
+        bool pointerDown = false;
+        bool pointerHeld = false;
+        bool pointerUp = false;
 
         if (hasTouch)
         {
@@ -122,30 +108,18 @@ public class InputBasics : MonoBehaviour
             pointerHeld = phase == TouchPhase.Moved || phase == TouchPhase.Stationary;
             pointerUp = phase == TouchPhase.Ended || phase == TouchPhase.Canceled;
         }
-        else
+        else if (Pointer.current != null)
         {
-            Vector2? pos = TryGetPointerPosition();
-            if (pos.HasValue) screenPosition = pos.Value;
-
-            pointerDown = Pointer.current != null && Pointer.current.press.wasPressedThisFrame;
-            pointerHeld = Pointer.current != null && Pointer.current.press.isPressed;
-            pointerUp = Pointer.current != null && Pointer.current.press.wasReleasedThisFrame;
+            Pointer pointer = Pointer.current;
+            screenPosition = pointer.position.ReadValue();
+            pointerDown = pointer.press.wasPressedThisFrame;
+            pointerHeld = pointer.press.isPressed;
+            pointerUp = pointer.press.wasReleasedThisFrame;
         }
 
         if (pointerDown) PressBegin();
         else if (pointerHeld) PressHold();
         else if (pointerUp) PressEnd();
-    }
-
-    Vector2? TryGetPointerPosition()
-    {
-        if (Pointer.current == null) return null;
-
-        if (Pointer.current is Mouse mouse) return mouse.position.ReadValue();
-        if (Pointer.current is Pen pen) return pen.position.ReadValue();
-        if (Pointer.current is Touchscreen touchscreen) return touchscreen.primaryTouch.position.ReadValue();
-
-        return Pointer.current.position.ReadValue();
     }
 
     void PressBegin()
@@ -175,7 +149,6 @@ public class InputBasics : MonoBehaviour
         }
 
         pressPosition = screenPosition;
-        touchData = new List<TouchData> { new(screenPosition, pressTimer) };
 
         if (!OnUI) PressBeginEvent?.Invoke();
     }
@@ -186,21 +159,25 @@ public class InputBasics : MonoBehaviour
         pullVector = screenPosition - pressPosition;
         pullAngle = Mathf.Atan2(pullVector.y, pullVector.x) * Mathf.Rad2Deg;
 
-        touchData.Add(new TouchData(screenPosition, pressTimer));
-
-        int index = 0;
-        while (index < touchData.Count && pressTimer > touchData[index].Timer + swipeDuration)
-            index++;
-
-        if (index > 0)
-            touchData.RemoveRange(0, index);
-
         if (!OnUI) PressHoldEvent?.Invoke();
     }
 
     void PressEnd()
     {
-        if (pressTimer < tapTimeout)
+        isPressing = false;
+        justReleased = true;
+        lastTimer = Time.time - pressTime;
+
+        swipeVector = screenPosition - pressPosition;
+        swipeAngle = Mathf.Atan2(swipeVector.x, swipeVector.y) * Mathf.Rad2Deg;
+        swipeLength = swipeVector.magnitude / ScreenDiagonal_;
+
+        bool swipeLengthMoved = swipeLength > minSwipeLength;
+
+        if (swipeLengthMoved && lastTimer <= swipeDuration)
+            hasSwiped = true;
+
+        if (pressTimer < tapTimeout && !swipeLengthMoved)
         {
             isTapping = true;
             consecutiveTaps++;
@@ -211,28 +188,14 @@ public class InputBasics : MonoBehaviour
             consecutiveTaps = 0;
         }
 
-        isPressing = false;
-        justReleased = true;
         pressTimer = 0f;
-        lastTimer = Time.time - pressTime;
-
-        swipeVector = screenPosition - touchData[0].Position;
-        swipeAngle = Mathf.Atan2(swipeVector.x, swipeVector.y) * Mathf.Rad2Deg;
-        swipeLength = swipeVector.magnitude / ScreenDiagonal_;
-
-        if (swipeLength > minSwipeLength)
-            hasSwiped = true;
 
         if (!OnUI) PressEndEvent?.Invoke();
     }
 
+    // Vereist voor Touch.activeTouches
     void OnEnable()
     {
         EnhancedTouchSupport.Enable();
-    }
-
-    void OnDisable()
-    {
-        EnhancedTouchSupport.Disable();
     }
 }
