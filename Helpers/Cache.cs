@@ -1,7 +1,7 @@
 using UnityEngine;
 
-public class Cache : MonoBehaviour
-{    
+public static class Cache
+{
     public static readonly WaitForSeconds waitForSeconds_0_15 = new(0.15f);
     public static readonly WaitForSeconds waitForSeconds_0_25 = new(0.25f);
 

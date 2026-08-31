@@ -1,11 +1,13 @@
+using UnityEngine;
+
 namespace Scripts
 {
-    public enum TouchCommand { None, Press, SwipeLeft, SwipeRight, SwipeUp, SwipeDown }
-    public enum Side {right, left, up, down}
+    public enum Side { None, Right, Left, Up, Down }
 
-    class Constants
+    public static class Constants
     {
         public static float e = 2.71828175f;
+
+        public static readonly int EmissionColorId = Shader.PropertyToID("_EmissionColor");
     }
 }
-

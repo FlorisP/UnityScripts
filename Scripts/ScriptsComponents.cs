@@ -22,7 +22,7 @@ namespace Scripts
         public static void DestroyChildrenGO(GameObject go) => DestroyChildren(go.transform);
         
         // Camera
-        (Vector2 widthSpan, Vector2 heightSpan) FrameSpanFromCamera(float distance)
+        public static (Vector2 widthSpan, Vector2 heightSpan) FrameSpanFromCamera(float distance)
         {
             Camera cam = Camera.current;
             distance = Mathf.Abs(distance);
@@ -44,7 +44,7 @@ namespace Scripts
         // AnimationCurve
         public static AnimationCurve InvertAnimationCurve(AnimationCurve curve, int resolution = 30)
         {
-            AnimationCurve newCurve = new AnimationCurve();
+            AnimationCurve newCurve = new();
             float startTime = curve.keys[0].time;
             float endTime = curve.keys[curve.length - 1].time;
 
