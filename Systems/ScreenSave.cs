@@ -230,4 +230,9 @@ public class ScreenSave : MonoBehaviour
     }
 }
 
+#else
+using UnityEngine;
+
+/// <summary>Editor-only screenshot helper; stub so player builds don't see a missing script.</summary>
+public class ScreenSave : MonoBehaviour { }
 #endif
