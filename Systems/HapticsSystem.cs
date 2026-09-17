@@ -4,17 +4,17 @@ using MoreMountains.NiceVibrations;
 public class HapticsSystem : MonoBehaviour
 {
     public bool hapticsEnabled = true;
+    const float Sharpness = 0.2f;
 
-    const float Sharpness = 0.35f;
-
+    // Singleton
     static HapticsSystem _instance;
     public static HapticsSystem Instance => _instance = _instance != null ? _instance : FindFirstObjectByType<HapticsSystem>();
 
-    bool continuousActive;
+    public static bool HapticsEnabled_ { get => Instance.hapticsEnabled; set => Instance.hapticsEnabled = value; }
 
     // intensity = sterkte (beide platforms). sharpness vast semi-scherp (alleen iOS).
-    public static void PlayTick_() => Instance.Transient(0.10f);
-    public static void PlayUI_() => Instance.Transient(0.20f);
+    public static void PlayTick_() => Instance.Transient(0.02f);
+    public static void PlayUI_() => Instance.Transient(0.05f);
     public static void PlaySoft_() => Instance.Transient(0.30f);
     public static void PlayLight_() => Instance.Transient(0.40f);
     public static void PlayMedium_() => Instance.Transient(0.55f);
@@ -27,6 +27,8 @@ public class HapticsSystem : MonoBehaviour
         Instance.StartContinuous(intensity, duration);
     public static void StopContinuous_() =>
         Instance.StopContinuous();
+    
+    bool continuousActive;
 
     void Transient(float intensity)
     {
