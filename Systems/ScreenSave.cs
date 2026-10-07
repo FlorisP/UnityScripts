@@ -18,6 +18,8 @@ public class ScreenSave : MonoBehaviour
     public bool autoCapture = false;
     public float autoCaptureInterval = 5f;
     public Key captureKey = Key.F12;
+    [Tooltip("Als de root-map onder Assets/ staat: meteen AssetDatabase.Refresh zodat nieuwe sessiemappen en screenshots in de Project-window verschijnen.")]
+    public bool refreshProjectWindow = true;
 
     [ReadOnly] public string currentSessionFolderPath;
     [ReadOnly] public float nextAutoCaptureTime;
@@ -59,6 +61,7 @@ public class ScreenSave : MonoBehaviour
 
         screenshotIndex = 0;
         nextAutoCaptureTime = Time.unscaledTime + autoCaptureInterval;
+        RefreshProjectIfNeeded();
     }
 
     public IEnumerator CaptureRawAsync()
@@ -124,7 +127,14 @@ public class ScreenSave : MonoBehaviour
             byte[] rawBytes = rawDataCopy.ToArray();
             rawDataCopy.Dispose();
 
-            Task.Run(() => WriteRawShot(fullPath, width, height, rawBytes));
+            Task writeTask = Task.Run(() => WriteRawShot(fullPath, width, height, rawBytes));
+            while (!writeTask.IsCompleted)
+                yield return null;
+
+            if (writeTask.IsFaulted)
+                Debug.LogException(writeTask.Exception);
+            else
+                RefreshProjectIfNeeded();
         }
 
         captureInProgress = false;
@@ -171,6 +181,18 @@ public class ScreenSave : MonoBehaviour
         }
 
         Debug.Log("RawShot conversion done. Converted: " + convertedCount + ", Skipped: " + skippedCount);
+        if (convertedCount > 0)
+            RefreshProjectIfNeeded();
+    }
+
+    void RefreshProjectIfNeeded()
+    {
+        if (!refreshProjectWindow)
+            return;
+        if (!Path.GetFullPath(rootFolderPath).StartsWith(Path.GetFullPath(Application.dataPath), StringComparison.OrdinalIgnoreCase))
+            return;
+
+        AssetDatabase.Refresh();
     }
 
     public static void ConvertToPng(string rawShotPath, string pngPath)

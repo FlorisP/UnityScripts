@@ -133,9 +133,13 @@ public class InputBasics : MonoBehaviour
         isPressing = true;
         justPressed = true;
 
-        List<RaycastResult> results = new();
-        EventSystem.current.RaycastAll(new PointerEventData(EventSystem.current) { position = screenPosition }, results);
-        touchBeganOnUI = results.Exists(result => result.gameObject.layer == UILayer);
+        touchBeganOnUI = false;
+        if (EventSystem.current != null)
+        {
+            List<RaycastResult> results = new();
+            EventSystem.current.RaycastAll(new PointerEventData(EventSystem.current) { position = screenPosition }, results);
+            touchBeganOnUI = results.Exists(result => result.gameObject.layer == UILayer);
+        }
 
         float oldPressTime = pressTime;
         pressTime = Time.time;
