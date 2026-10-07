@@ -8,6 +8,7 @@ using UnityEngine.Experimental.Rendering;
 using System;
 using System.IO;
 using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Sirenix.OdinInspector;
 using ReadOnlyAttribute = Sirenix.OdinInspector.ReadOnlyAttribute;
@@ -163,6 +164,7 @@ public class ScreenSave : MonoBehaviour
         string[] rawShotPaths = Directory.GetFiles(rootFolderPath, "*.rawshot", SearchOption.AllDirectories);
         int convertedCount = 0;
         int skippedCount = 0;
+        var newPngPaths = new List<string>();
 
         for (int i = 0; i < rawShotPaths.Length; i++)
         {
@@ -176,16 +178,16 @@ public class ScreenSave : MonoBehaviour
             }
 
             ConvertToPng(rawShotPath, pngPath);
+            newPngPaths.Add(pngPath);
             convertedCount++;
-
         }
 
         Debug.Log("RawShot conversion done. Converted: " + convertedCount + ", Skipped: " + skippedCount);
         if (convertedCount > 0)
-            RefreshProjectIfNeeded();
+            RefreshProjectIfNeeded(newPngPaths);
     }
 
-    void RefreshProjectIfNeeded()
+    void RefreshProjectIfNeeded(List<string> newPngPaths = null)
     {
         if (!refreshProjectWindow)
             return;
@@ -193,6 +195,31 @@ public class ScreenSave : MonoBehaviour
             return;
 
         AssetDatabase.Refresh();
+
+        if (newPngPaths != null)
+            KeepNativeResolution(newPngPaths);
+    }
+
+    // Default NPOT "ToNearest" remaps 1080×1920 → 1024×2048 in the importer; keep file pixels as-is.
+    void KeepNativeResolution(List<string> pngPaths)
+    {
+        string dataPath = Path.GetFullPath(Application.dataPath);
+
+        for (int i = 0; i < pngPaths.Count; i++)
+        {
+            string full = Path.GetFullPath(pngPaths[i]);
+            if (!full.StartsWith(dataPath, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            string assetPath = "Assets" + full.Substring(dataPath.Length).Replace('\\', '/');
+            var importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+            if (importer == null)
+                continue;
+
+            importer.npotScale = TextureImporterNPOTScale.None;
+            importer.mipmapEnabled = false;
+            importer.SaveAndReimport();
+        }
     }
 
     public static void ConvertToPng(string rawShotPath, string pngPath)
